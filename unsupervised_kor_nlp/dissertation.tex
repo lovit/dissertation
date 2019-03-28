@@ -176,7 +176,63 @@ FastText \citep{bojanowski2017enriching}
 FastText supervised \citep{joulin2016bag}
 CNN supervised word embedding \citep{kim2014convolutional}
 
-\subsection{Keyword Extraction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Keyword extraction}
+
+키워드 추출은 그래프 랭킹 분야와 토픽 모델링 레이블링 분야에서 주로 연구되었다.
+그래프 랭킹 기반 키워드 추출 방법은 문서 집합의 주제가 단일될 때 적용 가능한 방법이며, 토픽 모델델링 레이블링은 문서 집합의 주제가 여러 가지일 때 문서 집합의 각 토픽에 대한 키워드를 추출하여 문서 집합 전체를 설명하기 위한 방법이다.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Topic labeling with keyword extraction}
+
+토픽은 문서 집합에 존재하는 잠재적인 의미 집합으로, 부분 문서들의 집합으로 해석할 수 있다.
+토픽 모델링을 위하여 다양한 방법이 제안되었다.
+Latent Semantic Indexing (LSI) 은 문서 - 단어 행렬을 Singular Vector Decomposition (SVD) 를 이용하여 분해함으로써 각 문서와 단어를 토픽 공간의 벡터로 표현하였다 \citep{landauer1998introduction}.
+하지만 벡터의 의미를 해석하기 어렵다는 단점이 있으며, 이를 보완하기 위하여 확률 생성 모델을 기반으로 Probablistic Latent Semantic Indexing (pLSI) 이 제안되었다 \citep{hofmann1999probabilistic}.
+그러나 pLSI 는 많은 양의 패러매터를 학습해야 하는 어려움과 새로운 문서에 대한 토픽 벡터 추정 (inference) 이 어렵다는 단점이 제기되었다.
+Latent Dirichlet Allocation (LDA) 은 pLSI 의 단점을 보완하는 방법으로 안정적인 학습과 새로운 문서에 대한 토픽 벡터 추정이 가능하다 \citep{blei2003latent}.
+LDA 는 토픽 모델링에서 가장 많이 이용되는 방법이 되었으며, 학습 결과 단어의 생성 확률 벡터로 표현되는 토픽 벡터를 얻을 수 있다.
+그러나 LDA 로부터 학습된 토픽 벡터에는 높은 확률을 가지지만 정보력이 적은 junk term 이 존재하며 \citep{newman2010evaluating}, 토픽 벡터의 크기는 모델링에 이용된 단어 개수이기 때문에 해석이 어렵다.
+이러한 점을 해결하기 위하여 각 토픽을 해석할 수 있는 토픽 키워드를 추출하기 위한 다양한 방법들이 제안되었다. 
+
+단어의 생성 확률로 표현되는 각 토픽 벡터에서 확률값이 큰 단어를 키워드로 선택하는 방법들도 제안되었지만 \citep{snyder2013topic, chuang2013topic, wallach2009evaluation}, 각 토픽이나 문서 집합에서 자주 등장하는 단어는 흔하게 등장하는 단어이지 좋은 키워드가 아니라는 주장이 제기되었다 \citep{ramage09tmsocial, newman2010evaluating, chuang2012interpretation}.
+다양한 연구들은 공통적으로 다음 두 가지 조건을 만족하는 단어를 키워드로 선정한다 \citep{chuang2012termite}.
+
+\begin{enumerate}
+  \item \texttt{saliency} : 키워드가 해당 문서 집합을 대표하는가?
+  \item \texttt{distinctiveness} : 한 문서 집합의 키워드를 이용하여 해당 문서 집합과 다른 문서 집합을 구분할 수 있는가?
+\end{enumerate}
+
+한 문서 집합의 키워드는 해당 문서 집합을 대표해야 하기 때문에 문서 집합 내 많은 문서에서 등장해야 한다.
+하지만 한 문서 집합의 키워드는 해당 문서 집합과 다른 문서 집합을 구분할 수 있어야 한다.
+이는 상반되는 기준이 될 수 있는데, 한 문서 집합에서만 등장하는 단어는 해당 문서 집합에서도 소수의 문서에서만 등장할 가능성이 높고, 다수의 문서 집합에서 등장하는 단어는 다른 문서 집합에서도 등장할 가능성이 높기 때문이다.
+위의 두 기준을 모두 고려하는 방법들이 키워드 추출 방법을 제안되었다 \citep{bischof2012summarizing, newman2010evaluating, taddy2012estimation}.
+한 토픽에서 유독 자주 등장하는 단어를 키워드로 선택하기 위하여 \citep{newman2010evaluating, taddy2012estimation, mimno2011optimizing} 토픽과 단어 간의 Point Mutual Information (PMI) 을 계산하여 이 값이 높은 단어를 키워드로 선택하였다.
+식 \ref{eq:topic_pmi} 처럼 토픽 내 단어 생성 확률 $P(w \vert t)$ 를 문서 집합 전체의 단어 분포 $P(w)$ 로 나눔으로써 한 토픽에 유독 자주 등장하는 단어를 선정하였다.
+하지만 $P(w)$ 가 매우 작은 단어는 높은 PMI 를 지니기 때문에, 토픽 내 생성 확률이 큰 몇 개의 단어를 선택한 뒤, PMI 를 계산하는 방법도 제안되었다 \citep{newman2010evaluating, alsumait2009topic}.
+
+\begin{equation}
+  \label{eq:topic_pmi}
+  score(w,t) = \frac{P(w \vert t)}{P(w)}
+\end{equation}
+
+\citep{bischof2012summarizing} 도 단어의 빈도수와 토픽 간 구분력을 모두 고려하는 FREX 라는 지표를 제안하였다.
+\citep{song2009topic} 은 토픽 내 단어 생성 확률과 토픽 별 생성 확률의 분산의 곱을 키워드 점수로 이용하였다.
+이 방법은 한 토픽에서 자주 등장하며, 여러 토픽에서 다른 분포로 등장하는 단어를 키워드로 선택한다.
+이는 문서의 클래스를 토픽으로 고려하면 문서 분류를 위한 변수 선택법들과도 비슷하다 \citep{largeron2011entropy, popescul2000automatic}.
+
+하지만 상반되는 두 가지 기준을 동시에 고려하여 하나의 지표로 표현할 경우, 왜곡된 해석을 할 가능성이 높다 \citep{chuang2012interpretation}. 
+두 가지 기준에 대한 지표를 따로 마련하고, 이들의 가중 평균 비율을 사용자가 능동적으로 조절할 수 있어야 문서 집합의 키워드를 제대로 이해할 수 있다 \citep{chuang2012interpretation}.
+\citep{sievert2014ldavis}는 saliency 와 distinctiveness 를 표현하는 두 가지 지표를 계산한 뒤, 사용자가 가중 평균의 가중치를 직접 조절할 수 있는 LDAVis 라는 인터페이스를 제안하였다.
+사용자는 $\lambda$ 를 조절하면서 키워드 점수를 재정의 할 수 있다.
+
+\begin{equation}
+  \label{eq:ldavis}
+  score(w \vert t)_\lambda = \lambda \times \frac{P(w \vert t)}{P(w)} + (1 - \lambda) \times P(w \vert t)
+\end{equation}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Graph ranking based keyword extraction}
 
 그래프는 정보를 표현할 객체를 마디 (node) 로 정의하고, 객체 간의 관계를 호 (edge) 로 정의하는 표현 방식이다.
 각 호는 가중치 (weight) 가 할당되며, 두 마디의 거리 혹은 유사도의 값을 가중치로 이용할 수 있다.

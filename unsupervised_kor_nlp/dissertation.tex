@@ -1,0 +1,96 @@
+% Set parameters
+% set font size
+\documentclass[11pt]{article}
+
+% set line height
+\renewcommand{\baselinestretch}{2}
+
+% line number
+\usepackage{lineno}
+
+% today
+\renewcommand{\today}{}
+
+% set margin
+\usepackage{geometry}
+\geometry{a4paper, left=15mm, right=15mm, top=20mm, bottom=20mm}
+
+% for using Korean
+\usepackage{kotex}
+
+% for using multi-languages
+\usepackage[english]{babel}
+
+% for urls
+\usepackage{hyperref}
+
+% for equation
+\usepackage{amsmath}
+
+% for fixing figure position
+\usepackage{float}
+
+% for citation
+\usepackage{natbib}
+\bibliographystyle{apa}
+\setcitestyle{authoryear,open={(},close={)},citesep={;}}
+
+% for drawing table
+\usepackage{array,multirow,graphicx,rotating,booktabs}
+\usepackage[table,xcdraw]{xcolor}
+
+% for tabularx
+\usepackage{tabularx}
+\newcolumntype{b}{X}
+\newcolumntype{s}{>{\hsize=.5\hsize}X}
+\renewcommand\arraystretch{0.8} \setlength\minrowclearance{0.8pt}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\title{Unsupervised Korean Natural Language Processing to Solve Out-of-Vocabulary and Dearth of Data}
+\author{Hyunjoong Kim}
+
+\maketitle
+\smallskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Related work}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Prudent space correction and influence noise level of training data}
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Enhancing morphological analyzer with unsupervised word extraction}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Keyword extraction in unsupervised manner}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Graph ranking based method for homogeneous texts}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Clustering and classification based method for heterogeneous texts}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliography{reference}
+
+\end{document}

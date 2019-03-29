@@ -18,6 +18,7 @@
   - [ ] Subword embedding for word extraction
   - [ ] Enhancing tagger
 - [ ] Chapter 5. Keyword Extraction
+  - [v] Introduction
   - [ ] Chapter 5.1. Graph ranking based method for homogeneous texts
     - KR-WordRank 정리
   - [ ] Chapter 5.2. Clustering and classification based method for heterogeneous texts

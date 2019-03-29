@@ -1,1 +1,26 @@
 # Ph.D  dissertation Repository
+
+## Chapter
+
+- [v] Chapter 1. Introduction
+- [v] Chapter 2. Related Works
+  - [v] Characteristic of Korean 
+  - [v] Word embedding
+  - [ ] Sequential labeling
+  - [v] Keyword extraction (graph ranking, topic keyword)
+- [ ] Chapter 3. Prudent space correction and influence noise level of training data
+  - [v] Definition & Related works
+  - [ ] proposed method : 설명이 부족함
+  - [v] Evaluation : CRF 와의 비교
+  - [ ] Discussion
+- [ ] Chapter 4. Enhancing part of speech tagging with unsupervised word extraction}
+  - [ ] Word / Noun Extraction with statistic method
+  - [ ] Subword embedding for word extraction
+  - [ ] Enhancing tagger
+- [ ] Chapter 5. Keyword Extraction
+  - [ ] Chapter 5.1. Graph ranking based method for homogeneous texts
+    - KR-WordRank 정리
+  - [ ] Chapter 5.2. Clustering and classification based method for heterogeneous texts
+    - k-means + clustering labeling 논문 정리
+- [ ] Chapter 6. Topic extraction using unsupervised sequence segmentation
+  - [ ] Proposed method. 현대차 논문의 토픽 모델링 응용. 실험부터 해야 함

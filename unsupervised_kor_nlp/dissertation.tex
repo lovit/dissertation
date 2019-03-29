@@ -509,7 +509,7 @@ $L$ 은 앞의 문맥만을, $R$ 은 뒤의 문맥만을, $C$ 는 양쪽의 문�
 띄어쓰기 교정 모델의 학습 데이터에 띄어쓰기 오류가 포함된 상황을 만들기 위하여 문장 내 띄어쓰기에 대하여 1\% 부터 50\% 의 비율로 띄어쓰기를 제거하여 띄어쓰기 오류가 존재하는 학습 데이터를 생성하였다.
 
 비교 모델로 동일한 종류의 부분 글자열 변수를 이용하는 CRF 기반 모델을 이용하였다.
-두 모델 모두 길이가 3 \~ 7 사이인 부분 어절을 변수로 이용하였으며, 최소 빈도수 10 번 이상 등장한 변수만 이용하였다.
+두 모델 모두 길이가 3 \~ 7 사이인 부분 어절을 변수로 이용하였으며, 최소 빈도수 5 번 이상 등장한 변수만 이용하였다.
 CRF 의 학습은 python-crfsuite 를 이용하였으며, 변수 선택이 되지 않도록 L1 regularization 은 이용하지 않았다.
 
 표 \ref{tab:remain_noise_proposed} 은 제안하는 모델을 이용하여 띄어쓰기 오류를 교정한 뒤 남은 오류의 비율이다.
@@ -522,7 +522,7 @@ CRF 의 학습은 python-crfsuite 를 이용하였으며, 변수 선택이 되�
 \begin{table}[H]
 \centering
 \label{tab:remain_noise_proposed}
-\caption{Remained noise of proposed method [percentage]}
+\caption{Remained noise of proposed method [\%]}
 \begin{tabular}{|c|l|l|l|l|l|l|l|l|l|l|l|}
 \hline
 \multicolumn{2}{|c|}{\multirow{2}{*}{remain noise}} & \multicolumn{10}{c|}{Test data noise level} \\ \cline{3-12} 
@@ -543,7 +543,7 @@ CRF 의 학습은 python-crfsuite 를 이용하였으며, 변수 선택이 되�
 \begin{table}[H]
 \centering
 \label{tab:remain_noise_crf}
-\caption{Remained noise of CRF based model [percentage]}
+\caption{Remained noise of CRF based model [\%]}
 \begin{tabular}{|c|l|l|l|l|l|l|l|l|l|l|l|}
 \hline
 \multicolumn{2}{|c|}{\multirow{2}{*}{remain noise}} & \multicolumn{10}{c|}{Test data noise level} \\ \cline{3-12} 
@@ -567,7 +567,7 @@ CRF 의 학습은 python-crfsuite 를 이용하였으며, 변수 선택이 되�
 \begin{table}[H]
 \centering
 \label{tab:false_space_proposed}
-\caption{False space correction of proposed method [percentage]}
+\caption{False space correction of proposed method [\%]}
 \begin{tabular}{|c|l|l|l|l|l|l|l|l|l|l|l|}
 \hline
 \multicolumn{2}{|c|}{\multirow{2}{*}{remain noise}} & \multicolumn{10}{c|}{Test data noise level} \\ \cline{3-12} 
@@ -588,7 +588,7 @@ CRF 의 학습은 python-crfsuite 를 이용하였으며, 변수 선택이 되�
 \begin{table}[H]
 \centering
 \label{tab:false_space_crf}
-\caption{False space correction of CRF based model [percentage]}
+\caption{False space correction of CRF based model [\%]}
 \begin{tabular}{|c|l|l|l|l|l|l|l|l|l|l|l|}
 \hline
 \multicolumn{2}{|c|}{\multirow{2}{*}{remain noise}} & \multicolumn{10}{c|}{Test data noise level} \\ \cline{3-12} 
@@ -606,7 +606,7 @@ CRF 의 학습은 python-crfsuite 를 이용하였으며, 변수 선택이 되�
 \end{tabular}
 \end{table}
 
-표 \ref{remain_noise_proposed} 와 \ref{remain_noise_crf} 는 Recall 에 해당하며, 표 \ref{tab:false_space_proposed} 와 \ref{tab:false_space_crf} 는 Precision 에 해당하기 때문에 F1 score 를 계산할 수 있다.
+표 \ref{tab:remain_noise_proposed} 와 \ref{tab:remain_noise_crf} 는 Recall 에 해당하며, 표 \ref{tab:false_space_proposed} 와 \ref{tab:false_space_crf} 는 Precision 에 해당하기 때문에 F1 score 를 계산할 수 있다.
 
 1\% 부터 50\% 의 모든 오류 수준에 대한 F1 macro 는 제안하는 모델이 0.698, CRF 기반 모델이 0.693 을 보인다.
 하지만 우리는 학습 데이터에서 띄어쓰기 오류가 심한 데이터는 간단한 규칙 기반으로 걸러낼 수 있으므로, 학습 데이터의 띄어쓰기 오류 수준을 최대 30\% 라고 가정한다면 제안하는 모델의 F1 macro 는 0.808, CRF 기반 모델은 0.731 이다.
@@ -614,12 +614,25 @@ CRF 의 학습은 python-crfsuite 를 이용하였으며, 변수 선택이 되�
 
 \subsection{Discussion}
 
-입력 문장에는 사용자에 의하여 작성된 일부의 띄어쓰기 정보가 포함되어 있다. 
+모델을 적용할 문서 집합의 단어 분포를 잘 반영하려면 학습 데이터를 모델을 적용할 문서 집합에서 구축하여야 한다.
+그러나 수작업으로 띄어쓰기 오류를 교정하여 학습 데이터를 만드는 것은 불가능한 일이다.
+하지만 표 \ref{tab:remain_noise_proposed} 와 \ref{tab:remain_noise_crf} 로부터 학습 데이터에 일정 수준의 띄어쓰기 오류가 포함되어 있더라도 띄어쓰기 교정이 잘 이뤄짐을 확인할 수 있다.
+띄어쓰기 없다면 한국어의 어절의 평균 길이는 약 3.4 로, 한 문장에서 띄어쓰기가 존재하는 비율이 0.29 라는 의미이다.
+띄어쓰기 오류를 교정할 데이터에서 문장 길이 대비 띄어쓰기의 비율을 계산한 다음, 해당 비율이 특정 값 이상인 문장을 선택하면 평균 오류 수준이 특정 값 이상인 학습 데이터를 선택할 수 있다.
+예를 들어 평균 오류 비율을 30\% 이하로 맞추기 위해서 각 문장의 띄어쓰기 비율이 $0.29 \times 0.7 = 0.203$ 이상인 문장들을 선택할 수 있다.
+이와 같은 기준을 이용하여 상대적으로 오류가 적은 문장들을 선택한다면, 교정할 문서 집합의 단어 분포와 가장 일치하면서 오류가 적은 학습 데이터를 손쉽게 구축할 수 있다.
+
+입력 문장에는 사용자에 의하여 작성된 일부의 띄어쓰기 정보가 포함되어 있다.
+띄어쓰기 오류가 지나치게 많을 경우 가독성이 매우 떨어지기 때문에, 사람이 작성한 텍스트에는 구문 단위로 띄어쓰기가 일부 포함된 경우들이 많다.
+이는 사람에 의하여 명확히 태깅된 띄어쓰기 태그이기 때문에 이 정보를 반드시 이용해야 한다.
+이 정보를 이용하지 않는 경우는 입력된 문장의 모든 띄어쓰기를 제거한 뒤, 다시 띄어쓰기를 수행하는 것이다.
+입력 데이터의 띄어쓰기 정보를 태그로 이용하는 경우의 효과를 확인하기 위하여 제안한 모델과 CRF 기반 모델을 각각 3, 10, 20\% 의 띄어쓰기 오류가 포함된 학습 데이터를 이용하여 모델을 학습한 뒤, 10\% 띄어쓰기 오류가 있는 데이터와 100\% 오류가 있는 데이터의 오류를 수정하였다.
+표 \ref{tab:remain_noise_proposed} 과 \ref{tab:no_use_user_space_crf} 에서 두 모델 모두 입력 데이터의 띄어쓰기 정보를 이용하지 않으면 많은 양의 오류를 수정하지 못함을 확인할 수 있다.
 
 \begin{table}[H]
 \centering
 \label{tab:no_use_user_space_proposed}
-\caption{Remained noise when use no user space tag with proposed method [percentage]}
+\caption{Remained noise when use no user space tag with proposed method [\%]}
 \begin{tabular}{|c|c|c|c|}
 \hline
 \multicolumn{2}{|c|}{Remain noise (\%)} & With space (10 \% noise) & Without space \\ \hline
@@ -632,7 +645,7 @@ CRF 의 학습은 python-crfsuite 를 이용하였으며, 변수 선택이 되�
 \begin{table}[H]
 \centering
 \label{tab:no_use_user_space_crf}
-\caption{Remained noise when use no user space tag with CRF based model [percentage]}
+\caption{Remained noise when use no user space tag with CRF based model [\%]}
 \begin{tabular}{|c|c|c|c|}
 \hline
 \multicolumn{2}{|c|}{Remain noise (\%)} & With space (10 \% noise) & Without space \\ \hline
@@ -681,8 +694,14 @@ CRF 의 학습은 python-crfsuite 를 이용하였으며, 변수 선택이 되�
 
 
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Clustering and classification based method for heterogeneous texts}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Topic detection using unsupervised sequence segmentation}
 
 
 

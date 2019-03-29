@@ -2,16 +2,16 @@
 
 ## Chapter
 
-- [v] Chapter 1. Introduction
-- [v] Chapter 2. Related Works
-  - [v] Characteristic of Korean 
-  - [v] Word embedding
+- [x] Chapter 1. Introduction
+- [x] Chapter 2. Related Works
+  - [x] Characteristic of Korean
+  - [x] Word embedding
   - [ ] Sequential labeling
-  - [v] Keyword extraction (graph ranking, topic keyword)
+  - [x] Keyword extraction (graph ranking, topic keyword)
 - [ ] Chapter 3. Prudent space correction and influence noise level of training data
-  - [v] Definition & Related works
+  - [x] Definition & Related works
   - [ ] proposed method : 설명이 부족함
-  - [v] Evaluation : CRF 와의 비교
+  - [x] Evaluation : CRF 와의 비교
   - [ ] Discussion
 - [ ] Chapter 4. Enhancing part of speech tagging with unsupervised word extraction}
   - [ ] Word / Noun Extraction with statistic method

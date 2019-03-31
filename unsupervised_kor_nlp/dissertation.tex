@@ -252,35 +252,111 @@ FastText 는 빈도수가 적은 단어와 미등록단어의 임베딩 벡터�
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Sequential labeling}
 
-시퀀스 레이블링 기법은 길이가 $n$ 인 입력 시퀀스 $x = [x_1, x_2, \dots, x_n]$ 에 대하여 가장 적절한 출력 시퀀스 $y = [y_1, y_2, \dots, y_n]$ 을 출력하는 머신러닝 알고리즘이다.
+시퀀스 레이블링 기법은 길이가 $n$ 인 입력 시퀀스 $x = [x_1, x_2, \dots, x_n]$ 에 대하여 가장 적절한 출력 시퀀스 $y = [y_1, y_2, \dots, y_n]$ 을 출력하는 머신러닝 알고리즘이다 (식 \ref{eq:sequential_labeling}).
+
+\begin{equation}
+  \label{eq:sequential_labeling}
+  argmax_y P(y \vert x)
+\end{equation}
+
+식 \ref{eq:sequential_labeling} 를 정의하는 방법에 따라 다양한 시퀀스 레이블링 기법이 제안되었다.
+Hidden Markov Model (HMM) 은 Markov property 를 이용하는 방법으로, 오래전부터 이 문제를 위하여 이용되었다.
+HMM 은 식 \ref{eq:hmm} 처럼 두 종류의 패러매터로 구성되어 있다.
+$P(y_i \vert y_{i-1})$ 은 전이 확률 (transition probability) 로, 현재의 출력값 $y_i$ 는 이전 시점의 출력값 $y_{i-1}$ 에 영향을 받는다.
+$P(x_i \vert y_i)$ 은 생성 확률 (emission probability) 로, 현재의 출력값 $y_i$ 가 주어졌을 때, 현재의 입력값 $x_i$ 가 발생할 확률이다.
+$P(x_i \vert y_i) \times P(y_i \vert y_{i-1})$ 은 $P(x_i, y_i \vert y_{i-1})$ 로, 이전의 출력값이 주어졌을 때 현재 입력값과 출력값의 생성 확률이다.
+HMM 은 출력, 입력 시퀀스의 생성 확률을 최대화 하는 출력 시퀀스를 탐색한다.
 
 HMM \citep{krogh1994hidden} \\
-MEMM \citep{mccallum2000maximum} \\
+
+\begin{equation}
+  \label{eq:HMM}
+  P(y \vert x) = \prod_{i=1}^{n} P(y_i \vert y_{i-1}) P(x_i \vert y_i)
+\end{equation}
+
+그러나 HMM 은 자연어처리리 과업의 시퀀스 레이블링에 적합하지 않은 몇 가지 이유가 있다.
+첫째는 학습 데이터에 등장하지 않은 데이터의 생성 확률이 0 으로 정의된다.
+품사 판별의 경우 단어가 입력 시퀀스로 주어지고 품사를 출력 시퀀스로 탐색해야 하지만, 학습 말뭉치에 등장하지 않은 단어는 품사 추정을 할 수 없다.
+이러한 문제를 해결하기 위하여 학습 데이터에 등장하지 않은 $x_i$ 는 규칙 기반으로 처리하는 방법들이 이용되었다 \citep{brants2000tnt}.
+둘째는 "unguaranteed independence problem" 이 발생한다.
+품사 추정을 위해서는 앞, 뒤에 등장한 단어들을 문맥으로 이용해야 하지만, HMM 은 $x_i, y_i$ 와 $y_i, y_{i-1}$ 만 상관성이 학습된다.
+HMM 이 은 앞, 뒤의 문맥 정보를 이용할 수 있는 능력이 없다.
+
+이러한 문제를 해결하기 위하여 Maximum Entropy Models 가 제안되었다.
+Maximum Entropy Markov Model (MEMM) 과 Conditional Random Field (CRF) 는 대표적인 모델이다 \citep{mccallum2000maximum, lafferty2001conditional}.
+이들은 입력 시퀀스를 벡터로 표현한 뒤, softmax regression 을 이용하여 적합한 출력 시퀀스를 탐색한다.
+입력 시퀀스를 벡터로 표현하기 위하여 잠재 함수 (potentional function) 를 이용하는데, 이는 사용자에 의해 정의된 필터들을 이용하여 시퀀스의 한 시점을 이진 벡터 (Boolean vector) 로 표현한 것과 같다.
+예를 들어 입력 시퀀스로 $x=[3.2, 2.1, -0.5]$ 가 주어졌고, 아래처럼 한 개의 잠재 함수 $F_1$ 를 이용하면 $(1, 3)$ 크기의 벡터화된 입력 시퀀스 $h$ 를 얻을 수 있다.
+
+\begin{itemize}
+  \item$F_1 = 1$ if $x_i > 0$ else $0$
+  \item$h = [1, 1, 0]$
+\end{itemize}
+
+아래와 같이 두 개의 잠재 함수 $F_1, F_2$ 를 이용하면 $(2, 3)$ 크기의 $h$ 를 얻는다.
+
+\begin{itemize}
+  \item $F_1 = 1$ if $x_i > 0$ else $0$
+  \item $F_2 = 1$ if $x_i > 3$ else $0$
+  \item $h = [(1, 1), (1, 0), (0, 0)]$
+\end{itemize}
+
+잠재 함수는 입력 시퀀스가 명목 변수열이어도 손쉽게 벡터로 변환할 수 있도록 도와준다.
+입력 시퀀스가 '[이것, 은, 예문, 이다]' 와 같은 단어열 일 때, 아래의 잠재 함수를 이용하면 $(3, 4)$ 크기의 $h$ 를 얻을 수 있다.
+
+\begin{itemize}
+  \item $F_1 = 1$ if $x_{i_1} =$ 이것 and $x_{i} =$ 은 else $0$
+  \item $F_2 = 1$ if $x_{i_1} =$ 이것 and $x_{i} =$ 예문 else $0$
+  \item $F_3 = 1$ if $x_{i_1} =$ 은 and $x_{i} =$ 예문 else $0$
+  \item $h = [(0, 0, 0), (1, 0, 0), (0, 0, 1), (0, 0, 0)]$
+\end{itemize}
+
+잠재 함수의 가장 큰 장점은 모델링에 이용할 수 있는 변수를 사용자가 임의로 정의할 수 있다는 점과 입력 시퀀스가 벡터로 변환되어도 해석이 가능하다는 점이다.
+식 \ref{eq:memm} 처럼 잠재 함수가 이전 출력값 $y_{i-1}$ 을 이용한다면 Markov property 역시 지니게 되며, 품사 판별 문제에서는 앞, 뒤의 단어와 이전 단어의 품사 정보를 함께 이용할 수 있다.
+MEMM 은 잠재 함수를 이용하여 입력 시퀀스를 벡터로 변환한 뒤, 앞부분부터 순차적으로 softmax regression 을 이용하여 출력값을 탐색한다 \citep{mccallum2000maximum}.
 
 \begin{equation}
   \label{eq:memm}
   P(y \vert x) = \prod_{i=1}^{n} \frac{exp(\sum_{j=1}^{m} \lambda_j f_j (x, i, y_i, y_{i-1}))}{ \sum_{y^{`}} exp(\sum_{j^{`}=1}^{m} \lambda_j f_j (x, i, y_i^{`}, y_{i-1}^{`})) }
 \end{equation}
 
+그러나 MEMM 은 두 가지 문제점을 지니고 있다.
+첫째는 레이블 바이어스 (label bias) 로, 입력 시퀀스의 매 순간마다 softmax regression 에 의한 local normalization 이 이뤄지면 자주 등장하지 않은 레이블 $y_{i-1}$ 가 선호되는 현상이 발생한다\citep{lafferty2001conditional, kudo2004applying, andor2016globally}.
+출력값의 종류가 다양할 경우 자주 등장하는 출력값 $y_{i-1}$ 다음에 $y_i$ 가 등장할 확률은 대부분 작은 값을 지닌다.
+하지만 몇 번 등장하지 않더나 특정 레이블 앞에만 등장하는 $y_{i-1}$ 다음의 $y_i$ 는 큰 확률 값을 지녀 왜곡 현상이 발생한다.
+두번째는 길이 바이어스 (length bias) 로, 시퀀스 분할 (sequence segmentation) 과 레이블링 문제를 동시에 풀어야 하는 상황에서 길이가 짧은 출력 시퀀스를 선호하는 현상이 발생한다.
+시퀀스 분할 문제는 $P(y_{1:m} \vert x_{1:n}), m \le n$ 이 최대인 $y_{1:m}$ 을 탐색하는 문제로, 입력 글자열을 구분하여 단어열로 만드는 문제가 이에 해당한다.
+한국어나 일본어는 글자열 $c_{1:n}$ 이 주어졌을 때 이를 단어열 $x_{1:m}$ 로 구분하고, 구분된 단어열에 품사열 $y_{1:m}$ 을 부여해야 한다 (식 \ref{eq:seg_and_label}).
 
-CRF \citep{lafferty2001conditional} \\
+\begin{equation}
+  \label{eq:seg_and_label}
+  P(x_{1:m}, y_{1:m} \vert c_{1:n})
+\end{equation}
+
+이를 위해 MEMM 을 이용하면 $m$ 이 작을수록 적은 수의 확률 곲이 이뤄지므로, 길이가 긴 단어를 선호하는 (길이가 짧은 출력 시퀀스를 선호하는) 현상이 발생한다 \citep{kudo2004applying}.
+
+CRF 는 local normalization 에 의한 문제를 해결하기 위하여 식 \ref{eq:crf} 처럼 입력 시퀀스의 $h$ 에 대해 global normalization 을 하는 방식으로 출력 시퀀스 $y$ 를 탐색한다 \citep{lafferty2001conditional}.
 
 \begin{equation}
   \label{eq:crf}
   P(y \vert x) = \frac{exp(\sum_{j=1}^{m} \sum_{i=1}^{n} \lambda_j f_j (x, i, y_i, y_{i-1}))}{ \sum_{y^{`}} exp(\sum_{j^{`}=1}^{m} \sum_{i=1}^{n} \lambda_j f_j (x, i, y_i^{`}, y_{i-1}^{`})) }
 \end{equation}
 
-CRF pos tagger \citep{toutanova2003feature} \\
-CRF NER \citep{sang2003introduction} \\
-CRF 그 외 semantic tagging \citep{choi2005identifying} \\
-CRF + feature induction \citep{mccallum2003early} \\
-semi CRF NER \citep{sarawagi2005semi} \\
+CRF 는 이후 Co-reference resolution \citep{mccallum2005conditional}, NER \citep{ritter2011named, minkov2005extracting, ling2012fine, sang2003introduction, sarawagi2005semi}, Parsing \citep{sha2003shallow, finkel2008efficient}, 품사 판별 \citep{toutanova2003feature, gimpel2010part} 등 자연어처리의 다양한 시퀀스 레이블링 문제에 이용되었다 \citep{choi2005identifying, mccallum2003early}.
+
+transition based pos tagger \citep{bohnet2012transition} \\
+
 LSTM-CRF NER \citep{lample2016neural} \\
 LSTM + CNN CNN character feature + hidden -> output \citep{chiu2016named} \\
 Char-RNN NER \citep{gridach2017character} \\
 LSTM + CNN - CRF / NER, POS \citep{ma2016end} \\
 Feed forward (from scratch format) \citep{zheng2013deep} \\
 Feed forward POS, NER \citep{collobert2011natural} \\
+
+transition based neural word segmentation \citep{zhang2016transition} \\
+
+transition based neural word segmentation \citep{cai2017fast} Word, character level embedding 을 모두 이용 \\
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Keyword extraction}

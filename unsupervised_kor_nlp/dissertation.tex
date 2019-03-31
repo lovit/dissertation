@@ -265,17 +265,15 @@ FastText 는 빈도수가 적은 단어와 미등록단어의 임베딩 벡터�
 \end{equation}
 
 식 \ref{eq:sequential_labeling} 를 정의하는 방법에 따라 다양한 시퀀스 레이블링 기법이 제안되었다.
-Hidden Markov Model (HMM) 은 Markov property 를 이용하는 방법으로, 오래전부터 이 문제를 위하여 이용되었다.
+Hidden Markov Model (HMM) 은 Markov property 를 이용하는 방법으로, 오래전부터 이 문제를 위하여 이용되었다 \citep{krogh1994hidden}.
 HMM 은 식 \ref{eq:hmm} 처럼 두 종류의 패러매터로 구성되어 있다.
 $P(y_i \vert y_{i-1})$ 은 전이 확률 (transition probability) 로, 현재의 출력값 $y_i$ 는 이전 시점의 출력값 $y_{i-1}$ 에 영향을 받는다.
 $P(x_i \vert y_i)$ 은 생성 확률 (emission probability) 로, 현재의 출력값 $y_i$ 가 주어졌을 때, 현재의 입력값 $x_i$ 가 발생할 확률이다.
 $P(x_i \vert y_i) \times P(y_i \vert y_{i-1})$ 은 $P(x_i, y_i \vert y_{i-1})$ 로, 이전의 출력값이 주어졌을 때 현재 입력값과 출력값의 생성 확률이다.
 HMM 은 출력, 입력 시퀀스의 생성 확률을 최대화 하는 출력 시퀀스를 탐색한다.
 
-HMM \citep{krogh1994hidden} \\
-
 \begin{equation}
-  \label{eq:HMM}
+  \label{eq:hmm}
   P(y \vert x) = \prod_{i=1}^{n} P(y_i \vert y_{i-1}) P(x_i \vert y_i)
 \end{equation}
 
@@ -347,20 +345,96 @@ CRF 는 local normalization 에 의한 문제를 해결하기 위하여 식 \ref
   P(y \vert x) = \frac{exp(\sum_{j=1}^{m} \sum_{i=1}^{n} \lambda_j f_j (x, i, y_i, y_{i-1}))}{ \sum_{y^{`}} exp(\sum_{j^{`}=1}^{m} \sum_{i=1}^{n} \lambda_j f_j (x, i, y_i^{`}, y_{i-1}^{`})) }
 \end{equation}
 
-CRF 는 이후 Co-reference resolution \citep{mccallum2005conditional}, NER \citep{ritter2011named, minkov2005extracting, ling2012fine, sang2003introduction, sarawagi2005semi}, Parsing \citep{sha2003shallow, finkel2008efficient}, 품사 판별 \citep{toutanova2003feature, gimpel2010part} 등 자연어처리의 다양한 시퀀스 레이블링 문제에 이용되었다 \citep{choi2005identifying, mccallum2003early}.
+CRF 는 이후 Co-reference resolution \citep{mccallum2005conditional}, NER \citep{ritter2011named, minkov2005extracting, ling2012fine, sang2003introduction, sarawagi2005semi}, Parsing \citep{sha2003shallow, finkel2008efficient}, 품사 판별 \citep{toutanova2003feature, gimpel2010part} 등 자연어처리의 다양한 시퀀스 레이블링 문제에 이용되었다 \citep{choi2005identifying, mccallum2003early}. \\
 
-transition based pos tagger \citep{bohnet2012transition} \\
+식 \ref{eq:crf} 에 로그를 취하면 식 \ref{eq:transition_based_tagger} 처럼 기술할 수 있다.
+잠재 함수를 통하여 학습 데이터의 입력, 출력 시퀀스 쌍 $(x, y)$ 가 벡터로 변환된 뒤, 각 변수의 계수 $\lambda$ 와의 내적은 학습 데이터의 입력, 출력 시퀀스 쌍의 점수이며, $(x, \hat{y})$ 은 입력 시퀀스 $x$ 로부터 발생할 수 있는 모든 출력 시퀀스 $\hat{y}$ 이다.
 
-LSTM-CRF NER \citep{lample2016neural} \\
-LSTM + CNN CNN character feature + hidden -> output \citep{chiu2016named} \\
-Char-RNN NER \citep{gridach2017character} \\
-LSTM + CNN - CRF / NER, POS \citep{ma2016end} \\
-Feed forward (from scratch format) \citep{zheng2013deep} \\
-Feed forward POS, NER \citep{collobert2011natural} \\
+\begin{equation}
+  \label{eq:transition_based_tagger}
+  log P(y \vert x) = \lambda \cdot \left( F(x, y) - \sum_{\hat{y}} \cdot F(x, \hat{y}) \right)
+\end{equation}
 
-transition based neural word segmentation \citep{zhang2016transition} \\
+CRF 는 학습 데이터의 시퀀스 쌍 $(x, y)$ 의 점수와 가능한 모든 후보 $(x, \hat{y})$ 점수 합의 차이가 최대화 되도록 계수 $\lambda$ 를 학습한다.
+잠재 함수를 이용하여 $x$ 를 $h$ 로 변환한 뒤, $(x, y)$ 의 판별식에 Support Vector Machine (SVM) \citep{Cortes1995} 을 이용할 수 있다 \citep{tsochantaridis2005large}.
+이는 SVM 처럼 마진 최대 판별기 (max margine classifer) 가 되며, 식 \ref{eq:max_margine_tagger} 처럼 기술할 수 있다 \citep{taskar2004max}.
+모델은 주어진 $\lambda$ 를 이용하여 추정된 출력 시퀀스 $\hat{y}$ 이 학습 데이터의 출력 시퀀스 $y$ 가 되는 방향으로만 학습한다.
 
-transition based neural word segmentation \citep{cai2017fast} Word, character level embedding 을 모두 이용 \\
+\begin{equation}
+  \label{eq:max_margine_tagger}
+  \lambda \cdot \left( F(x, y) - F(x, \hat{y}) \right)
+\end{equation}
+
+잠재 함수에 의하여 생성되는 변수가 Markov property 를 따른다면 식 \ref{eq:transition_based_tagger_i} 처럼 $F(x, y_{i-1}, y_{i}, i)$ 로 기술할 수 있으며, 출력 시퀀스 값의 전이 성질을 이용하는 이러한 모델을 전이 기반 시퀀스 레이블링 (transition based sequence labeling) 이라 한다 \citep{bohnet2012transition}.
+
+\begin{equation}
+  \label{eq:transition_based_tagger_i}
+  \lambda \cdot \left( \sum_i F(x, y_{i-1}, y_i, i) - F(x, \hat{y_{i-1}}, \hat{y_i}, i) \right)
+\end{equation}
+
+이들은 Markov property 를 따르지만 local normalization 을 하지 않기 때문에 레이블 바이어스나 길이 바이어스의 위험이 상대적으로 적다.
+
+잠재 함수를 이용하여 입력 시퀀스를 벡터로 변환할 경우, 그 형태는 스파스 이진 벡터이다.
+Long-Short Term Memory network (LSTM) 이나 Gated Recurreunt Unit (GRU) 와 같은 Recurrent Neural Network (RNN) 계열 신경망 모델은 워드 임베딩 시퀀스 형태의 입력값을 이용할 수 있다 \citep{cho2014learning, hochreiter1997long}.
+LSTM 과 GRU 는 게이트 메커니즘 (gating mechanism) 을 이용하여 입력 시퀀스 $x = [x_1, x_2, \dots, x_n]$ 의 정보를 히든 벡터 시퀀스 $h = [h_1, h_2, \dots, h_n]$ 에 누적한다.
+GRU 는 식 \ref{eq:gru} 처럼 업데이트 게이트 $z_i$, 리셋 게이트 $r_i$ 를 이용하여 새로운 메모리 컨텐츠 $\tilde{h_i}$ 를 만들어 히든 벡터 $h_i$ 를 업데이트 한다.
+출력값은 히든 벡터 $h_i$ 에 선형 판별식을 통하여 선택된다.
+
+\begin{equation}
+  \label{eq:gru}
+  \begin{aligned}
+  z_i = \sigma(W^z \cdot x_i + U^z \cdot h_{i-1}) \\
+  r_i = \sigma(W^r \cdot x_i + U^r \cdot h_{i-1}) \\
+  \tilde{h_i} = tanh \left( W \cdot x_i + r \circ U \cdot h_{i-1}\right) \\
+  h_i = z_i \circ h_{i-1} + (1 - z_i) \circ \tilde{h_i} \\
+  y_i = softmax(Vh_i)
+  \end{aligned}
+\end{equation}
+
+본래 GRU 는 LSTM 의 구조를 간소화 한 것으로, LSTM 은 GRU 보다 1 개 많은 게이트와 메모리셀 $\tilde{c_i}$이 추가로 학습된다.
+게이트는 입력 게이트 $i_i$ 삭제 게이트 $f_i$, 출력 게이트 $o_i$ 로 구성되어 있다.
+
+\begin{equation}
+  \label{eq:lstm}
+  \begin{aligned}
+  i_i = \sigma(W^i \cdot x_i + U^i \cdot h_{i-1}) \\
+  f_i = \sigma(W^f \cdot x_i + U^f \cdot h_{i-1}) \\
+  o_i = \sigma(W^o \cdot x_i + U^o \cdot h_{i-1}) \\
+  \tilde{c_i} = tanh \left( W^c \cdot x_i + r \circ U^c \cdot h_{i-1}\right) \\
+  c_i = f_i \circ c_{i-1} + i_i \circ \tilde{c_i} \\
+  h_i = o_i \circ tanh (c_i) \\
+  y_i = softmax(Vh_i)
+  \end{aligned}
+\end{equation}
+
+게이트 메커니즘은 히든 벡터에 입력 시퀀스의 좌, 우의 일부 정보를 선택적으로 이용할 수 있도록 도와준다.
+이러한 모델은 단방향적인 정보만을 순차적으로 저장할 수 있기 때문에 역방향의 독립된 RNN 계열 네트워크를 동시에 학습하는 Bidirectional LSTM (BiLSTM) 이나 Bidirectional GRU (BiGRU) 가 제안되었다 \citep{graves2005bidirectional}.
+
+잠재 함수에 의하여 생성되는 변수 공간은 단어 개수와 변수 종류에 비례하여 매우 커지며, 비슷한 의미를 지니는 모든 변수가 서로 독립적으로 학습되는 단점이 있다.
+하지만 워드 임베딩을 통하여 서로 비슷한 문맥에서 등장하는 단어는 비슷한 벡터로 표현할 수 있게 되었고, 워드 임베딩 벡터만 학습할 수 있다면 말뭉치에 등장하지 않은 단어에 대해서도 정확한 품사 판별이나 객체명 인식과 같은 작업이 가능하게 되었다 \citep{collobert2011natural, lample2016neural}.
+
+하지만 위의 모델들은 식 \ref{eq:rnn_score} 처럼 출력 시퀀스 간의 관계에 대한 제약이 없다.
+
+\begin{equation}
+  \label{eq:rnn_score}
+  S(x_{1:n}, y_{1:n}) = \sum_{i=1}^n f_\theta(x_i, y_i)
+\end{equation}
+
+식 \ref{eq:rnn_crf_score} 처럼 이전 출력값과의 관계를 함께 학습하는 LSTM -CRF 모델이 제안되었으며, 객체명 인식같은 과업에 이용되었다 \citep{lample2016neural}.
+$A(y_{i-1}, y_i)$ 는 전이 모델의 역할을 한다.
+
+\begin{equation}
+  \label{eq:rnn_crf_score}
+  S(x_{1:n}, y_{1:n}) = \sum_{i=1}^n \left( A(y_{i-1}, y_i) + f_\theta(x_i, y_i) \right)
+\end{equation}
+
+입력 시퀀스가 단어열이 아닌 글자열일 경우에도 객체명 인식과 같은 작업이 가능였다\citep{gridach2017character}.
+입력 단어가 학습데이터에 존재하지 않아 임베딩 벡터를 계산하지 못하는 경우를 방지하기 위하여 CNN 필터를 이용하여 단어의 글자로부터 임베딩 벡터를 학습하여 입력 시퀀스로 입력하는 LSTM + CNN 모델도 제안되었다 \citep{chiu2016named}.
+이들은 품사 판별이나 객체명 인삭과 같은 자연어처리 과업에 이용되었다 {ma2016end}.
+
+뉴럴 네트워크를 이용하는 전이 기반 시퀀스 레이블링 방법도 제안되었다 \citep{zheng2013deep, collobert2011natural, alberti2015improved}.
+전이 기반 모델은 피드 포워드 네트워크를 이용하여 점수 함수를 구축할 수 있으며, 입력 시퀀스로부터 정보를 추출하기 위하여 CNN 필터도 함께 이용될 수 있다 \citep{collobert2011natural}.
+이들은 중국어의 단어 분할 작업을 위해 이용되기도 하였다 \citep{zhang2016transition, cai2017fast, ballesteros2015improved}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

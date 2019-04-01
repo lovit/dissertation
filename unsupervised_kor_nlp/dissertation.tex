@@ -996,12 +996,37 @@ WordRank 가 추출한 2 음절 이상의 키워드에는 '원빈의'와 같이 
 하지만 식 \ref{eq:kpartition} 은 NP-hard 문제이기 때문에 최적의 값을 찾기 어렵다.
 
 \begin{equation}
-\cetnering
+\centering
 \label{eq:kpartition}
 \sum _{i=1}^{k}\sum _{\mathbf {x} \in S_{i}}\left\|\mathbf {x} -{\boldsymbol {\mu }}_{i}\right\|^{2}
 \end{equation}
 
 이를 효율적으로 근사하기 위하여 k-means \citep{lloyd1982least} 가 제안되었으며, 빠른 계산 속도와 적은 메모리 사용, 분산 계산이 쉬운 구조적 특징 때문에 대량의 데이터 군집화에 널리 이용되고 있다.
+k-means 는 그림 \ref{fig:lloyd_kmeans} 의 과정으로 학습된다.
+초기 군집 대표값 (initial centroids) 를 선정한 뒤, 데이터의 모든 점을 가장 가까운 군집 대표값의 레이블로 할당한다.
+각 군집에 속한 데이터의 평균을 새로운 군집 대표값으로 설정한 뒤, 위 과정을 모델이 수렴할 때까지 반복한다.
+
+\begin{figure}[H]
+\centering
+\begin{tabular}{|l|}
+\hline
+\begin{tabular}[c]{@{}l@{}}
+$D$: dataset\\
+$k$: a number of clusters\\
+\\
+\textbf{def kmeans} ($D, k$):\\
+\quad $C$ $\leftarrow$ Initialize $k$ centroids with random sampling\\
+\quad $L$ $\leftarrow$- Assign all points to its closest centroid\\
+\quad while (not converged):\\
+\quad \quad $C$ $\leftarrow$ Update centroids by averaging assigned date points \\
+\quad \quad $L$ $\leftarrow$ Reassign all the points to its closest centroid\\
+\quad \textbf{return} $C$, $L$
+
+\end{tabular} \\ \hline
+\end{tabular}
+\caption{Lloyd k-means}
+\label{fig:lloyd_kmeans}
+\end{figure}
 
 문서 군집화에는 문서 간 거리 척도의 설정이 중요하다.
 일반적으로 문서는 bag-of-words model 과 같은 고차원 스파스 벡터나 Doc2Vec 과 같은 고차원의 분산 표상 표현 (distributed representation) 으로 표현된다 \citep{le2014distributed, dai2015document}.
@@ -1013,13 +1038,70 @@ Bag-of-words model 로 표현되는 문서 간의 유사도는 두 문서에 공
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Improved initializer of k-means for document clustering}
 
-kmeans++ \citep{arthur2007k}
-uniform effect \citep{xiong2009k}
+k-means 는 초기 군집 대표값 (initial points) 에 의하여 군집화의 결과가 바뀔 수 있으며, 널리 퍼진 점들을 초기 군집 대표값으로 선택해야 안정적인 학습이 가능하다.
+kmeans++ \citep{arthur2007k} 은 이를 위하여 제안된 방법으로, 다음의 과정을 반복하여 초기 군집 대표값을 선택한다.
+처음 한 점 $c_0$ 는 임의로 선택한 뒤 이 점을 기준으로 다른 모든 점들과의 거리를 계산하여 그 제곱에 비례한 확률로 다른 점을 선택하여 널리 퍼진 점들을 초기 군집 대표값으로 선택한다.
+
+\begin{enumerate}
+  \item Select a point $c_0$ randomly.
+  \item Select next point $c_t$ with prob. of $\frac{d(c_{t-1}, c_t)^2}{\sum_t^` d(c_{t-1}, c_{t^`})^2}$
+  \item Repeat step 2 until choosing $k$ points
+\end{enumerate}
+
+하지만 bag-of-words model 이나 문서 임베딩 공간이 이용하는 고차원 공간에서는 대부분의 거리값이 일정해지는 성질이 있으며, 사실상 가까운 점들과 먼 점들로 이분할 되는 현상이 발생한다 \citep{aggarwal2001surprising}.
+그렇기 때문에 k-means++ 의 두 번째 단계에서 학습되는 확률 분포는 uniform 분포에 가깝게 되어 많은 계산 비용만 발생한다.
+또한 이전에 선택된 초기 군집 대표값을 기준으로 멀리 떨어진 점을 선택하기 때문에 $c_{t-2}$ 와 $c_t$ 가 멀리 떨어진 점이라는 보장을 하기 어렵다.
+
+이를 해결하기 위하여 문서 군집화에 적합한 효율적인 k-means 초기화 방법을 제안한다 (그림 \ref{fig:proposed_initializer}).
+
+첫째, 데이터에서 $\alpha \times k$ 개의 점을 임의로 선택하여 $D_{init}$ 을 만든다.
+거의 대부분의 데이터 간 거리가 동일하여 초기값을 선택하기 위하여 모든 점을 고려할 필요가 없기 때문이다.
+
+둘째, $D_{init}$ 에서 임의의 한 점 $c_i$ 을 선택한다.
+
+셋째, $D_{init}$ 에서 $c_i$ 와 거리가 $t_{init}$ 보다 작은 모든 점을 제거한다.
+이를 통하여 $t_{init}$ 보다 가까운 두 점이 초기 군집 대표값으로 선택되는 것을 방지할 수 있다.
+
+넷째, $k$ 개의 점이 선택될 때 까지 2 - 3 과정을 반복한다.
+
+다섯째, 2 - 3 과정에서 $k$ 개의 점을 선택하지 못하면 $D - D_{init}$ 에서 나머지 점을 임의로 선택한다.
+
+\begin{figure}[H]
+\centering
+%\resizebox{\textwidth}{!}
+{\begin{tabular}{|l|}
+\hline
+\begin{tabular}[c]{@{}l@{}}
+\small
+
+1. Construct set $D_{init}$, $\alpha \times k$ randomly selected data from data $D$\\
+2. Select $c_i$ randomly from $D_{init}$\\
+3. Remove $x_j$ where $x_j \in D_{init}$ and cos($⁡c_{i}, x_{j}$) $\ge t_{init}$\\
+4. Repeat 2 – 3 until $k$ centroid points are selected or $D_{init}$ becomes empty\\
+5. If the number of selected centroid is less than $k$, then select\\ 
+\quad remaining points from $D - D_{init}$ randomly\\
+
+\end{tabular} \\ \hline
+\end{tabular}}
+\caption{Proposed initialization method}
+\label{fig:proposed_initializer}
+\end{figure}
+
+이 과정은 데이터의 일부의 점만을 초기값 설정에 이용하기 때문에 계산이 빠르며, 3 번 과정으로 인하여 서로 멀리 떨어진 점들을 초기값으로 설정할 수 있다.
+이는 고차원 문서 벡터 공간의 대부분의 거리가 같다는 특징을 이용한 것이다.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Document clustering labeling}
 
+k-means 는 학습 결과로 각 문서가 속한 군집의 레이블과 군집 별 대표 벡터 (centroid vectors) 를 얻을 수 있다.
+
+
+\begin{equation}
+\label{eq:proposed_labeler}
+\centering
+s(w, c_i) = \frac{p_i (w)}{p_i (w) + p_{-i}(w)}
+\end{equation}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1027,15 +1109,65 @@ uniform effect \citep{xiong2009k}
 
 
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Franework of proposed method}
+
+
+
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Performance}
+
+
+\begin{table}[H]
+\centering
+\caption{Example of cluster labels from k=1,000 clustering result with IMDb reviews}
+\label{tab:imdb_cluster_label}
+\resizebox{\textwidth}{!}{\begin{tabularx}{\textwidth}{sb}
+\hline
+
+Cluster category & Cluster labels \\ \hline
+"Titanic" & iceberg, zane, sinking, titanic, rose, winslet, camerons, 1997, leonardo, leo, ship, cameron, dicaprio, kate, tragedy, jack, disaster, james, romance, love, effects, story\\ \hline
+Heros of Marvel comics & zemo, chadwick, boseman, bucky, panther, holland, cap, infinity, mcu, russo, civil, bvs, antman, winter, ultron, airport, avengers, marvel, captain, superheroes, stark, evans, america, iron, spiderman\\ \hline
+Alien sci-fi & skyline, jarrod, balfour, strause, invasion, independence, cloverfield, angeles, district, los, worlds, aliens, alien, la, budget, scifi, battle, cgi, day, effects, war\\ \hline
+Horror & gayheart, loretta, candyman, legends, urban, witt, campus, tara, reid, legend, alicia, englund, leto, scream, murders, slasher, helen, killer, student, teen, summer, cut, horror, final, sequel, scary \\ \hline
+"Matrix" & neo, morpheus, neos, oracle, trinity, zion, architect, hacker, reloaded, revolutions, wachowski, fishburne, machines, agents, matrix, keanu, smith, reeves, agent, jesus, machine, computer, fighting, fight, real \\ \hline
+
+\end{tabularx}}
+\end{table}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Discussion}
+
+k-means 의 단점 중 하나는 각 군집의 크기가 서로 다를 경우, 이들이 같은 크기의 군집으로 학습되는 uniform effect 현상이 발생한다 \citep{xiong2009k}.
+이를 해결하기 위해서는 하나의 군집을 작은 여러 개의 군집들로 표현해야 하기 때문에 군집의 개수는 예상하는 군집 개수보다 크게 설정하는 것이 좋다 \citep{liang2012k}.
+큰 크기의 군집이 여러 개로 나뉘어질 경우 후처리로 병합이 가능하지만, 작은 크기의 군집이 여러 개의 큰 군집으로 나뉘어질 경우 이들의 복원은 매우 어렵기 때문이다.
+
+\begin{figure}[H]
+\centering
+\resizebox{\textwidth}{!}{\begin{tabular}{|l|}
+\hline
+\begin{tabular}[c]{@{}l@{}}
+
+1. Sort clusters $C_1, C_2, \dots, C_k$ by their document frequency in decreasing order.\\
+2. For centroid $c_i$,\\
+\quad if there exists a merged cluster $M_j$, in which $\forall c_p \in M_j, cos{(c_i, c_p)} \ge t_{merge}$,\\
+\quad \quad $M_j \leftarrow M_j \cup \{ C_i \}$\\
+\quad else\\
+\quad \quad create new merged cluster $M_j$ = $\{C_i\}$\\
+
+\end{tabular} \\ \hline
+\end{tabular}}
+\caption{Merging similar clusters with similarity threshold}
+\label{fig:postprocessing}
+\end{figure}
 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{Conclusion}
-
-
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

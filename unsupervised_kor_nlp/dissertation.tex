@@ -980,6 +980,62 @@ WordRank 가 추출한 2 음절 이상의 키워드에는 '원빈의'와 같이 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Clustering and classification based method for heterogeneous texts}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Document clustering}
+
+앞 장에서 언급한 그래프 랭킹 기반 키워드 추출 방법은 문서 집합의 주제가 단일할 때 좋은 성능을 보이며, 여러 종류의 주제가 섞여있을 때에는 정보력이 적은 흔한 단어가 키워드로 선택된다.
+이러한 점을 해결하기 위하여 LDA \citep{blei2003latent} 와 같은 토픽 모델링 및 토픽 레이블링 기법 \citep{sievert2014ldavis} 이 이용될 수 있다.
+그러나 샘플링 기법을 기반으로 학습하는 LDA 는 문서 집합의 크기가 클 경우 많은 계산량이 필요하며 \citep{yuan2015lightlda}, 불용어제거와 같은 전처리 과정이 잘 이뤄지지 않으면 학습이 제대로 되지 않거나 불필요한 토픽과 단어들이 주요한 토픽과 단어로 해석되기도 한다 \citep{darling2011theoretical, newman2010evaluating}.
+또한 LDA 는 하나의 문서에 여러 개의 주제가 존재한다는 가정을 한다.
+하지만 뉴스나 블로그와 같이 길지 않은 문서는 사실 하나의 주제를 가지는 경우가 많으며, 이떄는 문서 군집화 역시 토픽 모델링으로 이용할 수 있다 \citep{dhillon2001concept, xu2003document}.
+
+군집화 알고리즘은 Gaussian Mixture Model (GMM), Density-based model (ester1996density), Hierarchical clustering \citep{zhao2005hierarchical} 등의 방법이 존재하지만, 고차원 벡터로 표현되는 문서의 특징과 계산 비용을 고려하면 k-means \citep{lloyd1982least} 는 매우 유용한 문서 군집화 알고리즘이다.
+
+군집화 알고리즘의 목적은 하나의 데이터셋을 여러 개의 부분 집합으로 분리하는 것으로, 각 부분 집합의 데이터 간에는 유사도가 높고 각 부분 집합 간에는 유사도가 낮은 부분 집합을 탐색하는 것이다.
+부분 집합, 군집의 개수가 $k$ 개로 정해질 경우, 이 문제를 k-partition 문제라 명한다.
+하지만 식 \ref{eq:kpartition} 은 NP-hard 문제이기 때문에 최적의 값을 찾기 어렵다.
+
+\begin{equation}
+\cetnering
+\label{eq:kpartition}
+\sum _{i=1}^{k}\sum _{\mathbf {x} \in S_{i}}\left\|\mathbf {x} -{\boldsymbol {\mu }}_{i}\right\|^{2}
+\end{equation}
+
+이를 효율적으로 근사하기 위하여 k-means \citep{lloyd1982least} 가 제안되었으며, 빠른 계산 속도와 적은 메모리 사용, 분산 계산이 쉬운 구조적 특징 때문에 대량의 데이터 군집화에 널리 이용되고 있다.
+
+문서 군집화에는 문서 간 거리 척도의 설정이 중요하다.
+일반적으로 문서는 bag-of-words model 과 같은 고차원 스파스 벡터나 Doc2Vec 과 같은 고차원의 분산 표상 표현 (distributed representation) 으로 표현된다 \citep{le2014distributed, dai2015document}.
+Bag-of-words model 로 표현되는 문서 간의 유사도는 두 문서에 공통으로 등장한 단어 정보가 중요하지만, 유컬리디언 거리 는 이를 제대로 표현하지 못하기 때문에 코싸인 거리 혹은 자카드 거리와 같은 척도를 이용해야 한다 \citep{huang2008similarity}.
+문서가 분산 표상 표현으로 표현된다 하더라도 임베딩 공간에서 두 객체의 유사도는 코싸인 거리를 이용하는 것이 좋다 \citep{levy2015improving}.
+
+유컬리디언 거리 대신 코싸인 거리를 이용하는 k-means 를 spherical k-means \citep{dhillon2001concept} 라 하며, 이는 문서 군집화에 적합한 방법이다.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Improved initializer of k-means for document clustering}
+
+kmeans++ \citep{arthur2007k}
+uniform effect \citep{xiong2009k}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Document clustering labeling}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Subword tokenizer to solve out of vocabulary}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Performance}
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Conclusion}
+
+
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

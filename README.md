@@ -22,6 +22,8 @@
   - [x] Introduction
   - [x] Chapter 5.1. Graph ranking based method for homogeneous texts: KR-WordRank
   - [ ] Chapter 5.2. Clustering and classification based method for heterogeneous texts
-    - k-means + clustering labeling 논문 정리
+    - [x] Introduction / Initializer / Labeler / Postprocessor
+    - [ ] Subword tokenizer to alleviate out of vocabulary problem
+    - [ ] Performance
 - [ ] Chapter 6. Topic extraction using unsupervised sequence segmentation
   - [ ] Proposed method. 현대차 논문의 토픽 모델링 응용. 실험부터 해야 함

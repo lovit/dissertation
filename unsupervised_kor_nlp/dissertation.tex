@@ -149,6 +149,7 @@
 2 장에서는 이에 대하여 살펴본다.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{Related work}
 
 \subsection{Structure of Korean}
@@ -165,7 +166,7 @@
 
 \begin{figure}[H]
 \centering
-\includegraphics[keepaspectratio=true, width=0.8\linewidth]{figures/korean_structure.png}
+\includegraphics[keepaspectratio=true, width=0.6\linewidth]{figures/korean_structure.png}
 \caption{한국어의 문장은 어절로, 어절은 단어로, 단어는 형태소로 구성되어 있다.}
 \label{fig:korean_structure}
 \end{figure}
@@ -562,6 +563,7 @@ WordRank 는 문장 내 모든 서브워드 (subword) 를 그래프의 마디로
 각 마디의 랭크가 계산되면 랭크가 높은 순서로 집합 L 에서만 키워드를 선택하며, 랭크가 낮은 한 단어가 집합 L 과 집합 R 의 단어들로 조합될 경우 이를 제거하는 필터링 방법을 통하여 키워드를 정제한다.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{Prudent space correction and influence noise level of training data}
 
 한국어는 띄어쓰기 기준으로 어절이 구분된다.
@@ -821,6 +823,7 @@ TODO
 \vspace{3cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{Enhancing part of speech tagging with unsupervised word extraction}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -849,6 +852,7 @@ Incorporating global information to tagger \citep{zhao2007incorporating}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{Keyword extraction in unsupervised manner}
 
 문서 집합의 요약 (summarization) 은 크게 두 가지 종류의 접근법으로 분류된다.
@@ -915,7 +919,7 @@ WordRank 가 이용하는 부분 글자열 인접 그래프 (subword adjacent gr
 이들은 대부분 '명사 + 조사'의 형태이다.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Franework of proposed method}
+\subsubsection{Framework of proposed method}
 
 kR-WordRank 는 위 세가지 문제를 해결하기 위하여 제안된 그래프 랭킹 기반 한국어 키워드 추출기이며, 이는 주어진 데이터로부터 직접 단어를 추출하는 능력이 있기 때문에 미등록단어 문제에서 자유롭다 \citep{kim2014kr}.
 
@@ -990,6 +994,7 @@ WordRank 가 추출한 2 음절 이상의 키워드에는 '원빈의'와 같이 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \subsection{Clustering and classification based method for heterogeneous texts}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1245,6 +1250,7 @@ Horror & gayheart, loretta, candyman, legends, urban, witt, campus, tara, reid, 
 \vspace{3cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \section{Topic detection using unsupervised sequence segmentation}
 
 \vspace{3cm}
@@ -1252,6 +1258,7 @@ Horror & gayheart, loretta, candyman, legends, urban, witt, campus, tara, reid, 
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
 \bibliography{reference}
 
 \end{document}

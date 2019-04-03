@@ -1,0 +1,134 @@
+% Set parameters
+% set font size
+\documentclass[11pt]{article}
+
+% set line height
+\renewcommand{\baselinestretch}{2}
+
+% line number
+\usepackage{lineno}
+
+% today
+\renewcommand{\today}{}
+
+% set margin
+\usepackage{geometry}
+\geometry{a4paper, left=15mm, right=15mm, top=20mm, bottom=20mm}
+
+% for using Korean
+\usepackage{kotex}
+
+% for using multi-languages
+\usepackage[english]{babel}
+
+% for urls
+\usepackage{hyperref}
+
+% for equation
+\usepackage{amsmath}
+
+% for fixing figure position
+\usepackage{float}
+
+% for bibliography
+\usepackage{apacite}
+\usepackage[numbers]{natbib}
+
+% for drawing table
+\usepackage{array,multirow,graphicx,rotating,booktabs}
+\usepackage[table,xcdraw]{xcolor}
+
+% for tabularx
+\usepackage{tabularx}
+\newcolumntype{b}{X}
+\newcolumntype{s}{>{\hsize=.5\hsize}X}
+\renewcommand\arraystretch{0.8} \setlength\minrowclearance{0.8pt}
+
+% for itemsep
+\usepackage{enumitem}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\title{Unsupervised Korean Natural Language Processing to Solve Out-of-Vocabulary and Dearth of Data}
+\author{Hyunjoong Kim}
+
+\maketitle
+\smallskip
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Introduction}
+
+(완료) 논문의 컨셉
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Out of vocabulary problem} : 학습 데이터에 등장하지 않은 단어를 제대로 인식하지 못하는 문제이다.
+    \item \textbf{Dearth of Data} : 과업에 적합한 학습 데이터를 마련하기 어렵다.
+    \item \textbf{Noise} : 텍스트 데이터에는 노이즈가 존재한다.
+\end{enumerate}
+
+(완료) 논문에서 다룰 주제 (제안하는 방법)의 요약
+
+\begin{enumerate}[noitemsep]
+    \item Korean space error correction
+    \item Enhancing part of speech tagging with unsupervised word extraction
+    \item Keyword extraction
+\end{enumerate}
+
+\section{Related work}
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Structure of Korean} (완료) 한국어 품사 체계, 단어의 특징
+    \item \textbf{Word embedding} (완료) Word2Vec, GloVe, Explicit representation, FastText 로 4 장의 단어 추출 과정에서 subword embedding 을 제안할 때 이용됨
+    \item \textbf{Sequential labeling} (완료) HMM, MEMM, CRF, Transition based labeling, RNN (LSTM, GRU) 리뷰
+    \item \textbf{Keyword extraction} (완료) 문서 집합의 주제가 단일할 때 이용할 수 있는 그래프 랭킹 기반 방법들 (TextRank, WordRank, KR-WordRank) 과 문서 집합의 주제가 여러가지 일 때 이용할 수 있는 토픽 모델링에서의 키워드 추출 방법을 다룸. 토픽 레이블링에서 키워드 추출 연구가 많이 이뤄졌으며, 좋은 키워드에 대한 정의가 잘 내려짐. 문서 군집화 뒤, 군집화 레이블링의 기초자료
+\end{enumerate}
+
+
+\section{Prudent space correction and influence noise level of training data}
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Introduction} : (완료) 띄어쓰기 오류 문제의 정의 및 어려움. 데이터 구하기가 어려우며, CRF 와 같은 모델의 구조적 특징 때문에 잘못된 띄어쓰기가 이뤄짐
+    \item \textbf{Proposed method} : (설명 보완 필요) CRF 보다 안전하면서 효율적인 띄어쓰기 알고리즘
+    \item \textbf{Evaluation} : (완료) 인공적으로 노이즈를 추가하여 이를 교정함. CRF 와 비교
+    \item \textbf{Conclusion} : (완료)
+\end{enumerate}
+
+\section{Enhancing part of speech tagging with unsupervised word extraction}
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Word extraction} : Word piece model 과 비교할 분석용 unsupervised tokenizer 로, 초고 완성
+    \item \textbf{Noun extraction} : 산업공학회지 혹은 정보과학회지에 제출할 한국어 버전 논문 완성
+    \item \textbf{Word embedding inference} : 모델에 추가되는 OOV 정보로, semantic feature 로 이용하기 위해 필요함. 알고리즘 완성됨
+    \item \textbf{Enhancing part of speech tagger} : transition based tagger 가 가장 적합하게 보이며, 알고리즘 작업 중
+\end{enumerate}
+
+\section{Keyword extraction in unsupervised manner}
+\subsection{Graph ranking based method for homogeneous texts}
+
+문서 집합의 주제가 단일할 때 이용하는 키워드 추출 방법
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Limitations of existing graph ranking based keyword extractors} : (완성) TextRank 는 OOV 가 발생, WordRank 는 한국어에서 잘 작동하지 않음
+    \item \textbf{Franework of proposed method} : (완성) 한국어에 맞도록 WordRank 변형한 KR-WordRank. KR-WordRank 논문의 내용을 요약
+    \item \textbf{Performance} : (완성) 세종 말뭉치에서의 단어 추출 능력을 WordRank 와 비교, 정성적 성능 평가. KR-WordRank 논문의 내용을 요약
+    \item \textbf{Conclusion} : (완성)
+\end{enumerate}
+
+\subsection{Clustering and classification based method for heterogeneous texts}
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Document clustering} : (완성) 문서 집합의 주제가 다양할 때에는 부분 문서 집합으로 나눠야 하며, 계산효율성과 안정성 측면에서 문서 군집화가 토픽 모델링보다 좋음
+    \item \textbf{Improved initializer of k-means for document clustering} : (완성) 문서 군집화에 적합하도록 개선된 k-means 초기화. 논문의 내용을 요약
+    \item \textbf{Document clustering labeling} : (완성) Clustering labeling 방법. 논문의 내용을 요약
+    \item \textbf{Merging similar cluster} : (완성) 논문의 내용을 요약
+    \item \textbf{Subword tokenizer to solve out of vocabulary} : 5.1 장에서 제안한 방법은 OOV 와 dearth of data 를 한번에 해결하는 방법이지만, 문서 군집화 레이블링은 dearth of data 만 해결한 문제. 이 챕터를 추가하면 OOV 도 다룰 수 있는 방법
+    \item \textbf{Framework of proposed method} : (완성) subword tokenizer 를 제외하고 프레임워크 완성
+    \item \textbf{Performance} : subword tokenizer 반영 여부에 따라 실험 추가
+    \item \textbf{Conclusion} :
+\end{enumerate}
+
+\section{Topic detection using unsupervised sequence segmentation}
+
+\end{document}

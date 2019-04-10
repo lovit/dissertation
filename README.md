@@ -18,12 +18,12 @@
   - [ ] Word / Noun Extraction with statistic method
   - [ ] Subword embedding for word extraction
   - [ ] Enhancing tagger
-- [ ] Chapter 5. Keyword Extraction
+- [x] Chapter 5. Summarizing homogeneous texts with graph ranking based keyword extraction
   - [x] Introduction
-  - [x] Chapter 5.1. Graph ranking based method for homogeneous texts: KR-WordRank
-  - [ ] Chapter 5.2. Clustering and classification based method for heterogeneous texts
-    - [x] Introduction / Initializer / Labeler / Postprocessor
-    - [ ] Subword tokenizer to alleviate out of vocabulary problem
-    - [ ] Performance
-- [ ] Chapter 6. Topic extraction using unsupervised sequence segmentation
+  - [x] KR-WordRank
+- [ ] Chapter 6. Summarizing heterogeneous texts with clustering and feature extraction based keyword extraction
+  - [x] Introduction / Initializer / Labeler / Postprocessor
+  - [ ] Subword tokenizer to alleviate out of vocabulary problem
+  - [ ] Performance
+- [ ] Chapter 7. Summarizing Document stream segmentation with unsupervised sequence segmentation
   - [ ] Proposed method. 현대차 논문의 토픽 모델링 응용. 실험부터 해야 함

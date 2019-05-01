@@ -562,6 +562,15 @@ WordRank 는 문장 내 모든 서브워드 (subword) 를 그래프의 마디로
 한국어 어절 구조의 특징을 이용하여 단어가 될 수 없는 서브워드를 마디의 후보에서 제거하여 정확한 랭크가 계산되도록 하였다.
 각 마디의 랭크가 계산되면 랭크가 높은 순서로 집합 L 에서만 키워드를 선택하며, 랭크가 낮은 한 단어가 집합 L 과 집합 R 의 단어들로 조합될 경우 이를 제거하는 필터링 방법을 통하여 키워드를 정제한다.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{Deep learning model based abstractive summarization}
+
+최근에는 문서 집합을 요약하는 문장을 생성하는 방식으로, 딥러닝 모델 기반 인코더 - 디코드 네트워크들을 이용하여 지도학습 방식으로 요약문을 생성하는 방법도 제안되고 있다 \citep{rush2015neural}.
+이들은 요약할 문서와 요약 문장의 쌍을 학습 데이터로 이용하는데, 문서를 인코더에 입력하고 문장을 디코더로 생성하는 방식으로 네트워크를 학습한다.
+그러나 RNN 기반 인코더 디코더 네트워크는 모델이 기억하는 단어의 개수에 제약이 많기 때문에 중요한 단어가 디코더의 미등록 단어인 경우들이 있다.
+이러한 문제를 해결하기 위하여 인코더에 입력되는 입력 문서에서 키워드를 추출하여 디코더에 입력하거나 \citep{nallapati2016abstractive}, 어텐션 메커니즘을 이용하여 입력 데이터에서 중요한 단어를 선택하는 방식이 제안되었다 \citep{see2017get, gu2016incorporating}.
+요약문을 생성하는 방식의 요약 과업은 최근에 연구가 활발히 진행되고 있으며, 이 경우에도 추출 기반 방식의 문서 요약 방법이 함께 이용되고 있다.
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
 \section{Prudent space correction and influence noise level of training data}
@@ -852,39 +861,10 @@ Incorporating global information to tagger \citep{zhao2007incorporating}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
-\section{Keyword extraction in unsupervised manner}
-
-문서 집합의 요약 (summarization) 은 크게 두 가지 종류의 접근법으로 분류된다.
-첫째는 문서 집합에서 키워드나 핵심 문장을 추출하는 방법이다.
-이를 위하여 그래프 랭킹 기반의 TextRank \citep{mihalcea2004textrank} 나 LexRank \citep{erkan2004lexrank} 가 이용될 수 있다.
-그래프 랭킹 알고리즘은 문서 집합에 존재하는 단어나 문장들을 이용하여 단어 / 문장 그래프를 구성한 뒤, 랭킹이 가장 높은 단어와 문장을 키워드와 핵심 문장으로 선택한다.
-이 때 문서 집합의 주제가 비슷하다면 그래프 랭킹 알고리즘은 문서 집합을 대표하는 단어와 문장을 선택할 수 있다.
-하지만 문서 집합 내 주제가 여러 가지일 경우에는 모든 주제에서 공통으로 등장하는 일반적인 단어나 문장이 키워드로 선택된다.
-이러한 경우에는 문서 집합을 단일한 주제를 지니는 부분 문서 집합으로 나눈 뒤 키워드를 추출하던지, 토픽 모델링을 학습한 뒤 각 토픽의 키워드를 선택하는 방식으로 문서 집합을 요약할 수 있다 \citep{chuang2012termite, sievert2014ldavis}.
-후자의 방법은 각 부분 문서 집합 / 토픽을 대표할 수 있는 만큼 자주 등장하고, 다른 문서 집합 / 토픽을 구분할 수 있는 단어를 키워드로 선정한다.
-
-둘째는 문서 집합을 요약하는 문장을 생성하는 방식으로, 최근에 딥러닝 모델에 의하여 성능이 향상되고 있는 인코더 - 디코드 네트워크들이 지도학습 방식으로 이용된다 \citep{rush2015neural}.
-요약할 문서와 요약 문장의 쌍을 학습 데이터로 이용하는데, 문서를 인코더에 입력하고, 문장을 디코더로 생성하는 방식으로 네트워크를 학습한다.
-그러나 RNN 기반 인코더 디코더 네트워크는 모델이 기억하는 단어의 개수에 제약이 많기 때문에, 중요한 단어가 디코더의 미등록 단어인 경우들이 있다.
-이러한 문제를 해결하기 위하여 인코더에 입력되는 입력 문서에서 키워드를 추출하여 디코더에 입력하거나 \citep{nallapati2016abstractive}, 어텐션 메커니즘을 이용하여 입력 데이터에서 중요한 단어를 선택하는 방식이 제안되었다 \citep{see2017get, gu2016incorporating}.
-요약문을 생성하는 방식의 요약 과업은 최근에 연구가 활발히 진행되고 있으며, 이 경우에도 추출 기반 방식의 문서 요약 방법이 함께 이용되고 있다.
-
-그러나 두 방법 모두 문서 집합은 정확한 단어열로 구분되어 있다는 사실을 전제로 한다.
-키워드는 단어이기 때문에 문장에서 단어가 제대로 인식되지 않으면 해당 단어는 키워드가 될 수 없기 때문이다.
-문장 생성 기반 문서 요약 방법은 모델이 학습할 수 있는 단어 수의 제약이 있고, 추출 기반 문서 요약 방법은 단어가 정확히 인식된다는 가정 하에 좋은 성능을 보인다.
-하지만 4 장에서 언급한 것처럼 한국어의 품사 판별기는 미등록 단어 문제를 겪기 때문에 단어 사전이 보강되어야만 한다.
-
-이번 5 장에서는 한국어 문서 집합 요약을 위하여 비지도학습 기반으로 키워드를 선택하는 두 가지 방법을 제안한다.
-5.1 장 에서는 그래프 랭킹 방법을 이용하여 단어 추출과 키워드 추출을 동시에 수행함으로써, 미등록단어 문제를 키워드 추출과 함께 해결하는 방법이다.
-이 방법은 문서 집합의 주제가 단일할 경우에 이용할 수 있다.
-5.2 장 에서는 문서 집합의 주제가 여러 가지일 경우 적용할 수 있는 방법으로, 문서 군집화 방법을 이용하여 문서 집합을 단일한 주제의 부분 문서 집합으로 분류한 뒤 한 문서 군집을 잘 표현하며 다른 문서 군집을 구분할 수 있는 키워드를 추출하는 방법을 제안한다.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Graph ranking based method for homogeneous texts}
+\section{Summarizing homogeneous texts with graph ranking based keyword extraction}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Limitations of existing graph ranking based keyword extractors}
+\subsection{Limitations of existing graph ranking based keyword extractors}
 
 문서 집합의 주제가 비슷하다면 TextRank \citep{mihalcea2004textrank}와 같은 그래프 기반 랭킹 키워드 추출 알고리즘을 이용하여 문서를 요약할 수 있는 대표 단어들을 추출할 수 있다.
 TextRank 는 문서가 단어열로 제대로 인식될 수 있다고 가정하지만, 띄어쓰기 오류와 미등록단어 문제가 포함되어 있는 한국어 텍스트 데이터는 이 가정이 잘 성립하지 않는다.
@@ -919,7 +899,7 @@ WordRank 가 이용하는 부분 글자열 인접 그래프 (subword adjacent gr
 이들은 대부분 '명사 + 조사'의 형태이다.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Framework of proposed method}
+\subsection{Framework of proposed method}
 
 kR-WordRank 는 위 세가지 문제를 해결하기 위하여 제안된 그래프 랭킹 기반 한국어 키워드 추출기이며, 이는 주어진 데이터로부터 직접 단어를 추출하는 능력이 있기 때문에 미등록단어 문제에서 자유롭다 \citep{kim2014kr}.
 
@@ -955,7 +935,7 @@ KR-WordRank 는 다음과 같은 과정으로 학습된다.
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Performance}
+\subsection{Performance}
 
 제안된 KR-WordRank 의 성능을 확인하기 위하여 두 가지 실험을 수행하였다.
 첫째는 단어의 정답이 기록되어 있는 세종 말뭉치를 이용하여 추출된 단어들이 실제로 단어인지 확인하였다.
@@ -986,7 +966,7 @@ WordRank 가 추출한 2 음절 이상의 키워드에는 '원빈의'와 같이 
 \end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Conclusion}
+\subsection{Conclusion}
 
 제안된 알고리즘은 단어 사전과 같은 정보를 이용하지 않았음에도 불구하고 세종 말뭉치 기준 70\% 에 가까운 단어 추출 정확도를 보여주었다.
 하지만 세종 말뭉치는 단일한 주제에 대한 문서 집합이 아니기 때문에 그래프 랭킹 기반 알고리즘을 이용하기에 적합하지 않다.
@@ -995,10 +975,10 @@ WordRank 가 추출한 2 음절 이상의 키워드에는 '원빈의'와 같이 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\subsection{Clustering and classification based method for heterogeneous texts}
+\section{Summarizing heterogeneous texts with clustering and feature extraction based keyword extraction}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Document clustering}
+\subsection{Document clustering}
 
 앞 장에서 언급한 그래프 랭킹 기반 키워드 추출 방법은 문서 집합의 주제가 단일할 때 좋은 성능을 보이며, 여러 종류의 주제가 섞여있을 때에는 정보력이 적은 흔한 단어가 키워드로 선택된다.
 이러한 점을 해결하기 위하여 LDA \citep{blei2003latent} 와 같은 토픽 모델링 및 토픽 레이블링 기법 \citep{sievert2014ldavis} 이 이용될 수 있다.
@@ -1053,7 +1033,7 @@ Bag-of-words model 로 표현되는 문서 간의 유사도는 두 문서에 공
 유컬리디언 거리 대신 코싸인 거리를 이용하는 k-means 를 spherical k-means \citep{dhillon2001concept} 라 하며, 이는 문서 군집화에 적합한 방법이다.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Improved initializer of k-means for document clustering}
+\subsection{Improved initializer of k-means for document clustering}
 
 k-means 는 초기 군집 대표값 (initial points) 에 의하여 군집화의 결과가 바뀔 수 있으며, 널리 퍼진 점들을 초기 군집 대표값으로 선택해야 안정적인 학습이 가능하다.
 kmeans++ \citep{arthur2007k} 은 이를 위하여 제안된 방법으로, 다음의 과정을 반복하여 초기 군집 대표값을 선택한다 (그림 \ref{fig:kmeanspp}).
@@ -1119,7 +1099,7 @@ kmeans++ \citep{arthur2007k} 은 이를 위하여 제안된 방법으로, 다음
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Document clustering labeling}
+\subsection{Document clustering labeling}
 
 각 군집별로 키워드를 추출함으로써 군집 레이블링을 할 수 있다.
 키워드는 한 군집에서 자주 등장하며, 다른 군집과 구분할 수 있는 단어여야 한다 \citep{snyder2013topic}.
@@ -1144,7 +1124,7 @@ s(w, c_i) = \frac{p_i (w)}{p_i (w) + p_{-i}(w)}
 이 과정은 추가적인 모델의 학습이 필요하지 않기 때문에 군집의 개수가 많더라도 빠르게 군집 별 키워드를 추출할 수 있다.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Merging similar cluster}
+\subsection{Merging similar cluster}
 
 k-means 의 단점 중 하나는 각 군집의 크기가 서로 다를 경우, 이들이 같은 크기의 군집으로 학습되는 uniform effect 현상이 발생한다 \citep{xiong2009k}.
 이를 해결하기 위해서는 하나의 군집을 작은 여러 개의 군집들로 표현해야 하기 때문에 군집의 개수는 예상하는 군집 개수보다 크게 설정하는 것이 좋다 \citep{liang2012k}.
@@ -1177,16 +1157,9 @@ k-means 의 단점 중 하나는 각 군집의 크기가 서로 다를 경우, �
 \label{fig:kmeans_postprocessing}
 \end{figure}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Subword tokenizer to solve out of vocabulary}
-
-
-\vspace{3cm}
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Franework of proposed method}
+\subsection{Franework of proposed method}
 
 그림 \ref{fig:pseudocode} 은 제안하는 문서 군집화 알고리즘의 의사 코드이다.
 제안하는 방법은 대량의 문서 군집화를 위한 빠른 초기화 알고리즘과 중복된 군집을 병합하기 위한 후처리 기능, 그리고 군집 대표 벡터를 이용한 군집 레이블링 기능이 포함되어 있다.
@@ -1223,7 +1196,7 @@ $k_1$: number of selected keywords\\
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Performance}
+\subsection{Performance}
 
 
 \begin{table}[H]
@@ -1243,15 +1216,19 @@ Horror & gayheart, loretta, candyman, legends, urban, witt, campus, tara, reid, 
 \end{tabularx}}
 \end{table}
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Visualization of document clustering results}
+
+LDAVis 를 이용한 문서 군집화 결과 시각화
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsubsection{Conclusion}
+\subsection{Conclusion}
 
 \vspace{3cm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\section{Topic detection using unsupervised sequence segmentation}
+\section{Summarizing Document stream segmentation with unsupervised sequence segmentation}
 
 \vspace{3cm}
 

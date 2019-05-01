@@ -17,8 +17,8 @@
   - [ ] Conclusion
 - [ ] Chapter 4. Enhancing part of speech tagging with unsupervised word extraction}
   - [ ] Word / Noun Extraction with statistic method
-  - [ ] Subword embedding for word extraction
-  - [ ] Enhancing tagger
+  - [ ] 단어 추출 기법을 이용한 통계 기반 토크나이저
+  - [ ] Evaluation : Word Piece Model, 트위터 형태소 분석기와 제안한 방법의 classification 에서의 성능 비교 (실험 완료)
 - [x] Chapter 5. Summarizing homogeneous texts with graph ranking based keyword extraction
   - [x] Introduction
   - [x] KR-WordRank

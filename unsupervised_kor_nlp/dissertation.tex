@@ -157,7 +157,7 @@
 한국어의 문장은 어절로 구성되어 있으며, 어절은 띄어쓰기를 기준으로 나뉘는 단위이다.
 한 어절은 하나의 단어 혹은 여러 개의 단어로 구성될 수 있다.
 그리고 단어는 하나 이상의 형태소로 구성된다.
-한국어의 단어 품사는 5언 9품사이며, 각 단어는 그 자체로 형태소 품사를 지닌다.
+한국어의 단어 품사는 5언 9품사이며, 각 단어는 그 자체로 형태소 품사를 지닌다 (그림 \ref{tab:korean_tag}).
 단 형용사와 동사는 용언의 어간과 어미 형태소로 구성된다.
 
 "이것은 예문 입니다" 라는 문장은 세 개의 어절로 구성되어 있으며, "이것은" 어절은 "이것/명사 + 은/조사"로 구성된다.
@@ -170,6 +170,28 @@
 \caption{한국어의 문장은 어절로, 어절은 단어로, 단어는 형태소로 구성되어 있다.}
 \label{fig:korean_structure}
 \end{figure}
+
+단어의 종류는 의미를 지니며 새로운 단어가 만들어지는 열린 집합 (open classes) 과 문법 기능을 수행하며 새로운 단어가 잘 만들어지지 않는 닫힌 집합 (closed classes) 으로 나뉘어진다 \citep{jurafsky2000speech}.
+대명사, 관형사, 조사, 어미는 문법 기능을 수행하는 단어와 형태소이기 때문에 닫힌 집합에 해당한다.
+체언의 수사도 숫자의 종류가 고정되어 있기 때문에 닫힌 집합에 해당한다.
+명사나 감탄사는 새로운 개념을 표현하기 위하여 새로운 단어가 만들어지기 때문에 열린 집합에 해당한다.
+동사와 형용사는 명사와 전성어미가 합쳐진 형태로 새로운 어간이 만들어진다.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{|
+>{\columncolor[HTML]{EAEAEA}}c |
+>{\columncolor[HTML]{EFEFEF}}c |c|l|c|c|l|l|}
+\hline
+\cellcolor[HTML]{EAEAEA} & 체언 & \multicolumn{2}{c|}{명사} & \multicolumn{2}{c|}{대명사} & \multicolumn{2}{l|}{수사} \\ \cline{2-8} 
+\cellcolor[HTML]{EAEAEA} & 수식언 & \multicolumn{3}{c|}{관형사} & \multicolumn{3}{c|}{부사} \\ \cline{2-8} 
+\cellcolor[HTML]{EAEAEA} & 관계언 & \multicolumn{6}{c|}{조사} \\ \cline{2-8} 
+\multirow{-4}{*}{\cellcolor[HTML]{EAEAEA}\textbf{불변어}} & 독립언 & \multicolumn{6}{c|}{감탄사} \\ \hline
+\textbf{가변어} & 용언 & \multicolumn{3}{c|}{동사} & \multicolumn{3}{c|}{형용사} \\ \hline
+\end{tabular}
+\caption{한국어 단어 품사 구조. 한국어는 5언 9품사로 구성되어 있다.}
+\label{tab:korean_tag}
+\end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Word embedding}

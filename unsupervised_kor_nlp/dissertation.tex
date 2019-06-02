@@ -2310,7 +2310,7 @@ $k$: a number of clusters\\
 \textbf{def kmeans} ($D, k$):\\
 \quad $C$ $\leftarrow$ Initialize $k$ centroids with random sampling\\
 \quad $L$ $\leftarrow$ Assign all points to its closest centroid\\
-\quad while (not converged):\\
+\quad \textbf{while} (not converged):\\
 \quad \quad $C$ $\leftarrow$ Update centroids by averaging assigned date points \\
 \quad \quad $L$ $\leftarrow$ Reassign all the points to its closest centroid\\
 \quad \textbf{return} $C$, $L$
@@ -2378,7 +2378,8 @@ k-means++ \citep{arthur2007k} 은 이러한 문제를 해결한 k-means 초기�
 \caption{고차원 벡터로 표현된 7 개의 텍스트 데이터에서의 코싸인 거리 분포. D1: A6 블로그, D2: 투스칸 블로그, D3: 소나타 블로그, D4: IMDb 리뷰, D5: Reuters RCV1, D6: MovieLens 20M, D7: Yelp 리뷰 데이터 (\%)}
 \label{tab:cosine_distance_distribution}
 \centering
-\resizebox{\textwidth}{!}{\begin{tabular}{|c|c|c|c|c|c|c|c|}
+%\resizebox{\textwidth}{!}{
+\begin{tabular}{|c|c|c|c|c|c|c|c|}
 \hline
 \multirow{2}{*}{\textbf{Distance range}} & \multicolumn{7}{c|}{\textbf{Dataset}} \\ \cline{2-8} 
  & \textbf{D1} & \textbf{D2} & \textbf{D3} & \textbf{D4} & \textbf{D5} & \textbf{D6} & \textbf{D7} \\ \hline
@@ -2386,7 +2387,8 @@ k-means++ \citep{arthur2007k} 은 이러한 문제를 해결한 k-means 초기�
 \textbf{0.7 - 0.8} & 0.378 & 1.121 & 0.455 & 7.751 & 0.067 & 2.386 & 0.286 \\ \hline
 \textbf{0.8 - 0.9} & 1.628 & 3.89 & 1.984 & 57.271 & 0.316 & 12.458 & 11.073 \\ \hline
 \textbf{0.9 - 1.0} & 97.745 & 94.399 & 97.239 & 34.706 & 99.573 & 83.7 & 88.632 \\ \hline
-\end{tabular}}
+\end{tabular}
+%}
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -2405,7 +2407,8 @@ k-means 의 초기 군집 중심값이 그림 \ref{fig:initialization_good_bad} 
 
 \begin{figure}[H]
 \centering
-\resizebox{\textwidth}{!}{\begin{tabular}{|l|}
+%\resizebox{\textwidth}{!}{
+\begin{tabular}{|l|}
 \hline
 \begin{tabular}[c]{@{}l@{}}
 
@@ -2417,7 +2420,8 @@ k-means 의 초기 군집 중심값이 그림 \ref{fig:initialization_good_bad} 
 \quad remaining points from $D - D_{init}$ randomly\\
 
 \end{tabular} \\ \hline
-\end{tabular}}
+\end{tabular}
+%}
 \caption{개선된 Spherical k-means 초기화 방법}
 \label{fig:proposed_initializer}
 \end{figure}
@@ -2489,10 +2493,10 @@ $t_{init}$: minimum distance for initializer\\
 $k_0$: number of keyword candidates\\
 $k_1$: number of selected keywords\\
 \\
-\textbf{def improved\_kmeans} ($D, k, \alpha, t_{init}, t_{merge}, k_0, k_1$):\\
+\textbf{def improved\_kmeans} ($D, k, \alpha, t_{init}, k_0, k_1$):\\
 \quad $C$ $\leftarrow$ Initialize $k$ centroids with sparse initializer ($D, k, \alpha, t_{init}$)\\
 \quad $L$ $\leftarrow$ Assign all points to its closest centroid\\
-\quad while (not converged):\\
+\quad \textbf{while} (not converged):\\
 \quad \quad $C$ $\leftarrow$ Update centroid. Averaging their belonging points \\
 \quad \quad $L$ $\leftarrow$ Reassign all the points to its closest centroid\\
 \quad $Z$ $\leftarrow$ cluster labeling ($C, L, k_0, k_1$)\\

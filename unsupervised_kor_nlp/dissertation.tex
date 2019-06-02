@@ -585,6 +585,12 @@ WordRank 는 문장 내 모든 서브워드 (subword) 를 그래프의 마디로
 각 마디의 랭크가 계산되면 랭크가 높은 순서로 집합 L 에서만 키워드를 선택하며, 랭크가 낮은 한 단어가 집합 L 과 집합 R 의 단어들로 조합될 경우 이를 제거하는 필터링 방법을 통하여 키워드를 정제한다.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{핵심 문장 추출}
+문서 내 문장의 위치나 문장에 포함된 단어를 변수로 이용하여 조건부 임의 필드와 같은 순차적 레이블링 알고리즘을 적용하여 핵심 문장을 추출하는 방법도 제안되었다 \citep{shen2007document}
+
+문서 요약 문제는 Document Understanding Conference (DUC, 2001 - 2007) 데이터셋을 이용한 연구가 주로 제안되었다.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsubsection{딥러닝 모델을 이용한 요약 기반 문서 요약}
 
 최근에는 문서 집합을 요약하는 문장을 생성하는 방식으로, 딥러닝 모델 기반 인코더 - 디코드 네트워크들을 이용하여 지도학습 방식으로 요약문을 생성하는 방법도 제안되고 있다 \citep{rush2015neural}.
@@ -2242,31 +2248,52 @@ LexRank 와 TextRank 는 문장 간 유사도가 다른 방법이기 때문에 �
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\section{문서 군집화 알고리즘 및 군집화 레이블링을 이용한 다주제 문서 집합 요약}
+\section{문서 군집화 알고리즘 및 군집화 레이블링을 이용한 다주제 문서 집합 요약} \label{improved_kmeans}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Document clustering}
+\subsection{개요}
 
-앞 장에서 언급한 그래프 랭킹 기반 키워드 추출 방법은 문서 집합의 주제가 단일할 때 좋은 성능을 보이며, 여러 종류의 주제가 섞여있을 때에는 정보력이 적은 흔한 단어가 키워드로 선택된다.
-여러 문서를 요약하기 위해서는 문서들이 비슷한 주제를 포함해야 한다 \citep{goldstein2000multi, lin2002single, filippova2008sentence, filippova2010multi}
-이러한 점을 해결하기 위하여 LDA \citep{blei2003latent} 와 같은 토픽 모델링 및 토픽 레이블링 기법 \citep{sievert2014ldavis} 이 이용될 수 있다.
+문서 요약 과업은 하나의 문서를 요약하는 과업과 여러 개의 문서를 요약하는 과업으로 분류되지만, 여러 개의 문서가 단일한 주제의 문서로 구성되어 있다면 단일 문서의 요약 방법이 적용될 수 있다.
+이 때는 \ref{summarize_single_topic} 장에서 제안한 것과 같은 그래프 랭킹 알고리즘을 기반으로 한 키워드나 핵심 문장 추출 방법이 주로 이용된다.
+하지만 문서 집합에 여러 종류의 주제가 섞여있을 때에는 정보력이 적은 흔한 단어가 키워드로 선택된다 \citep{goldstein2000multi, lin2002single, filippova2008sentence, filippova2010multi}.
+
+문서 집합이 여러 주제의 문서들로 구성되어 있을 때에는 문서 집합을 주제 별로 나눈 뒤, 각 주제 별로 문서를 요약할 수 있다.
+이를 위하여 LDA \citep{blei2003latent} 와 같은 토픽 모델링을 통하여 주제를 학습 한 뒤 토픽 레이블링 기법 \citep{sievert2014ldavis} 을 이용하여 주제 별 키워드를 탐색하거나, 문서 군집화를 이용하여 문서 집합을 단일한 주제의 부분 집합으로 구분한 뒤, 각 군집별로 문서를 요약할 수 있다 \citep{wan2008multi, erkan2004lexpagerank, twinandilla2018multi}.
+
 그러나 샘플링 기법을 기반으로 학습하는 LDA 는 문서 집합의 크기가 클 경우 많은 계산량이 필요하며 \citep{yuan2015lightlda}, 불용어제거와 같은 전처리 과정이 잘 이뤄지지 않으면 학습이 제대로 되지 않거나 불필요한 토픽과 단어들이 주요한 토픽과 단어로 해석되기도 한다 \citep{darling2011theoretical, newman2010evaluating}.
-또한 LDA 는 하나의 문서에 여러 개의 주제가 존재한다는 가정을 한다.
-하지만 뉴스나 블로그와 같이 길지 않은 문서는 사실 하나의 주제를 가지는 경우가 많으며, 이떄는 문서 군집화 역시 토픽 모델링으로 이용할 수 있다 \citep{dhillon2001concept, xu2003document}.
+LDA 는 하나의 문서에 여러 개의 주제가 존재한다는 가정하지만 뉴스나 블로그와 같이 길지 않은 문서는 사실 하나의 주제를 가지는 경우가 많으며, 문서 군집화 역시 토픽 모델링으로 이용할 수 있다 \citep{dhillon2001concept, xu2003document, xie2013integrating}.
 
-군집화 알고리즘은 Gaussian Mixture Model (GMM), Density-based model (ester1996density), Hierarchical clustering \citep{zhao2005hierarchical} 등의 방법이 존재하지만, 고차원 벡터로 표현되는 문서의 특징과 계산 비용을 고려하면 k-means \citep{lloyd1982least} 는 매우 유용한 문서 군집화 알고리즘이다.
+\label{improved_kmeans} 장에서는 문서가 하나의 주제로 구성되어 있다고 가정할 때, 문서 군집화 기법을 이용하여 여러 주제로 구성된 문서 집합을 요약하기 위한 방법을 제안한다.
+그러나 대량의 문서 요약을 위하여 k-means 군집화 기법과 키워드, 핵심 단어를 추출하는 과정에서는 비효율이 발생한다.
+k-means 는 다른 알고리즘보다 빠른 학습 속도를 보여주지만 여전히 효율을 개선할 부분이 존재하며, 군집화 이후 각 군집마다 키워드나 핵심 문장을 추출하기 위한 방법을 적용하려면 추가적인 모델 학습이 필요하다.
+\label{improved_kmeans} 장에서는 효율적인 문서 군집화를 위하여 k-means 를 개선하며, 군집화 결과를 이용하여 추가적인 모델 학습 없이 군집 별 키워드를 추출하는 방법을 제안한다.
 
-군집화 알고리즘의 목적은 하나의 데이터셋을 여러 개의 부분 집합으로 분리하는 것으로, 각 부분 집합의 데이터 간에는 유사도가 높고 각 부분 집합 간에는 유사도가 낮은 부분 집합을 탐색하는 것이다.
-부분 집합, 군집의 개수가 $k$ 개로 정해질 경우, 이 문제를 k-partition 문제라 명한다.
-하지만 식 \ref{eq:kpartition} 은 NP-hard 문제이기 때문에 최적의 값을 찾기 어렵다.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{관련 연구}
+
+문서 군집화는 각 문서가 속한 집합에 대한 레이블이 없는 상황에서, 문서 간 유사성을 바탕으로 비슷한 문서를 묶는 비지도학습 기반 과업이다 \citep{xu2015comprehensive, yang2017towards, xie2016unsupervised}.
+이를 위해서 다양한 군집화 알고리즘이 이용될 수 있다.
+DBSCAN \citep{ester1996density}과 같은 밀도 기반 군집화 알고리즘, 계층 구조 기반 군집화 알고리즘 \citep{sibson1973slink}, 혹은 그래프 기반 군집화 알고리즘 \citep{clauset2004finding} 는 다양한 군집화 문제에 이용되었다.
+하지만 이들의 계산 비용은 $O(n^2)$ 이상이기 때문에 대량의 군집화에 적합하지 않다.
+
+반면 k-means 는 군집화 방법은 $O(n)$ 의 계산 비용으로 학습할 수 있기 때문에 대량의 문서 군집화에 효과적이다 \citep{coates2012learning, he2013k, jin2013density, coates2011analysis}.
+k-means 는 k-partition 문제의 해법을 계산하는 근사 알고리즘으로, 데이터를 k 개의 부분 집합으로 나누었을 때 각 부분 집한 내의 점들 간의 분산이 최소화 되는 해를 탐색한다 \ref{eq:kpartition}.
 
 \begin{equation}
-\centering
 \label{eq:kpartition}
-\sum _{i=1}^{k}\sum _{\mathbf {x} \in S_{i}}\left\|\mathbf {x} -{\boldsymbol {\mu }}_{i}\right\|^{2}
+\centering
+arg min_C\sum_{i=1}^{k} \sum_{x \in C_i} \vert x - c_i \vert^2 = arg min_C \sum_{i=1}^{k} \vert C_i \vert Var(C_i)
 \end{equation}
 
-이를 효율적으로 근사하기 위하여 k-means \citep{lloyd1982least} 가 제안되었으며, 빠른 계산 속도와 적은 메모리 사용, 분산 계산이 쉬운 구조적 특징 때문에 대량의 데이터 군집화에 널리 이용되고 있다.
+\begin{flushleft}
+$C$ : cluster index\\
+$C_i$ : cluster i\\
+$c_i$ : the centroid of cluster i\\
+$x$ : a vector of a data point\\
+$k$ : a number of clusters\\
+\end{flushleft}
+
+\citep{lloyd1982least} 에서 제안된 k-means 는 빠른 계산 속도와 적은 메모리 사용, 분산 계산이 쉬운 구조적 특징 때문에 대량의 데이터 군집화에 널리 이용되고 있다.
 k-means 는 그림 \ref{fig:lloyd_kmeans} 의 과정으로 학습된다.
 초기 군집 대표값 (initial centroids) 를 선정한 뒤, 데이터의 모든 점을 가장 가까운 군집 대표값의 레이블로 할당한다.
 각 군집에 속한 데이터의 평균을 새로운 군집 대표값으로 설정한 뒤, 위 과정을 모델이 수렴할 때까지 반복한다.
@@ -2282,7 +2309,7 @@ $k$: a number of clusters\\
 \\
 \textbf{def kmeans} ($D, k$):\\
 \quad $C$ $\leftarrow$ Initialize $k$ centroids with random sampling\\
-\quad $L$ $\leftarrow$- Assign all points to its closest centroid\\
+\quad $L$ $\leftarrow$ Assign all points to its closest centroid\\
 \quad while (not converged):\\
 \quad \quad $C$ $\leftarrow$ Update centroids by averaging assigned date points \\
 \quad \quad $L$ $\leftarrow$ Reassign all the points to its closest centroid\\
@@ -2296,27 +2323,45 @@ $k$: a number of clusters\\
 
 문서 군집화에는 문서 간 거리 척도의 설정이 중요하다.
 일반적으로 문서는 bag-of-words model 과 같은 고차원 스파스 벡터나 Doc2Vec 과 같은 고차원의 분산 표상 표현 (distributed representation) 으로 표현된다 \citep{le2014distributed, dai2015document}.
-Bag-of-words model 로 표현되는 문서 간의 유사도는 두 문서에 공통으로 등장한 단어 정보가 중요하지만, 유컬리디언 거리 는 이를 제대로 표현하지 못하기 때문에 코싸인 거리 혹은 자카드 거리와 같은 척도를 이용해야 한다 \citep{huang2008similarity}.
-문서가 분산 표상 표현으로 표현된다 하더라도 임베딩 공간에서 두 객체의 유사도는 코싸인 거리를 이용하는 것이 좋다 \citep{levy2015improving}.
+Bag-of-words model 로 표현되는 문서 간의 유사도는 두 문서에 공통으로 등장한 단어 정보가 중요하지만, 유컬리디언 거리는 이를 제대로 표현하지 못하기 때문에 코싸인 거리 혹은 자카드 거리와 같은 척도를 이용해야 한다 \citep{huang2008similarity}.
+또한 문서가 분산 표상 표현으로 표현된다 하더라도 임베딩 공간에서 두 객체의 유사도는 코싸인 거리를 이용하는 것이 좋다 \citep{levy2015improving}.
+유컬리디언 거리 대신 코싸인 거리를 이용하는 k-means 를 spherical k-means 라 하며 문서 군집화 과업에 이용된다 \citep{dhillon2002iterative, buchta2012spherical}.
 
-유컬리디언 거리 대신 코싸인 거리를 이용하는 k-means 를 spherical k-means \citep{dhillon2001concept} 라 하며, 이는 문서 군집화에 적합한 방법이다.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Improved initializer of k-means for document clustering}
-
-k-means 는 초기 군집 대표값 (initial points) 에 의하여 군집화의 결과가 바뀔 수 있으며, 널리 퍼진 점들을 초기 군집 대표값으로 선택해야 안정적인 학습이 가능하다.
-kmeans++ \citep{arthur2007k} 은 이를 위하여 제안된 방법으로, 다음의 과정을 반복하여 초기 군집 대표값을 선택한다 (그림 \ref{fig:kmeanspp}).
-처음 한 점 $c_0$ 는 임의로 선택한 뒤 이 점을 기준으로 다른 모든 점들과의 거리를 계산하여 그 제곱에 비례한 확률로 다른 점을 선택하여 널리 퍼진 점들을 초기 군집 대표값으로 선택한다.
+그러나 k-means 는 여전히 개선될 여지가 있다.
+k-means 는 초기의 군집 중심값이 잘 설정어야 안정적인 학습 결과를 얻을 수 있다 \citep{arthur2007k}.
+그림 \ref{fig:initialization_good_bad} (a) 처럼 데이터의 전체 영역에 펼처진 형태로 초기 군집 중심값이 선택되면 빠르고 안정적인 수렴이 가능하지만, \ref{fig:initialization_good_bad} (b) 처럼 한 지역에서 초기 군집 중심값이 선택되면 불안정한 학습 결과를 보인다.
 
 \begin{figure}[H]
-\renewcommand{\arraystretch}{0.7}
+\centering
+\includegraphics[keepaspectratio=true, width=0.95\linewidth]{figures/kmeans_initialization_good_bad.png}
+\caption{(a) Good initial points, (b) Bad initial points}
+\label{fig:initialization_good_bad}
+\end{figure}
+
+이러한 초기화 문제를 해결하기 위하여 다양한 k-means 초기화 방법이 제안되었다.
+Global k-means 는 순차적으로 초기 군집 중심값을 탐색하는 방법이다 \citep{likas2003global, bagirov2008modified}.
+Global k-means 는 처음 데이터의 평균 벡터를 첫번째 군집의 초기값으로 이용한 뒤, 이 값을 고정한다.
+그 뒤 임의로 새로운 한 점을 선택하여 $k=2$ 인 k-means 를 학습하여 두 개의 군집 중심값을 얻는다.
+그 뒤 새로운 점을 추가하여 $k=3$ 인 k-means 를 학습한다.
+이 과정을 군집의 개수가 $k$ 가 될때까지 반복한다.
+그러나 이 과정은 $O(nk^2)$ 의 계산 비용을 요구하기 때문에 군집의 개수가 클 경우에는 매우 큰 학습 비용을 야기한다.
+
+k-means++ \citep{arthur2007k} 은 이러한 문제를 해결한 k-means 초기화 알고리즘으로, 그림 \ref{fig:kmeanspp} 처럼 작동한다.
+처음 한 점을 임의로 선택한 뒤, 다른 모든 점들 과의 거리 $d(x)$ 를 계산한다.
+거리의 제곱을 정규화한 확률 분포를 기반으로 다른 한 점을 임으로 선택한다.
+그 뒤 선택된 점들과 데이터의 모든 점들 간의 거리를 계산한 뒤, 선택된 점들 기준으로 가장 작은 거리값을 $d(x)$ 로 이용한다.
+이 과정을 $k$ 개의 점이 선택되기 전까지 반복한다.
+이 방법은 이미 군집 초기값으로 선택된 점과 그 주변의 점들이 선택될 확률을 작게 만듦으로써 데이터 전체에 펼쳐진 점들을 군집 초기값으로 선택한다.
+그러나 이 방법 역시 여전히 $O(nk)$ 의 계산 비용이 요구된다.
+
+\begin{figure}[H]
 \centering
 \begin{tabular}{|l|}
 \hline
 \begin{tabular}[c]{@{}l@{}}
 
 1. Select point $c_1$ randomly \\
-2. Select next point $c_t$ with probability $\frac{d(c_{t-1}, c_t)^2}{\sum d(c_{t-1}, c_t)^2}$ \\
+2. Select next point $c_t$ with probability $\frac{d(x)^2}{\sum_{x \in D} d(x)^2}$ \\
 3. Repeat step 2 until $k$ points are chosen as initial points.\\
 
 \end{tabular} \\ \hline
@@ -2325,118 +2370,112 @@ kmeans++ \citep{arthur2007k} 은 이를 위하여 제안된 방법으로, 다음
 \label{fig:kmeanspp}
 \end{figure}
 
-하지만 bag-of-words model 이나 문서 임베딩 공간이 이용하는 고차원 공간에서는 대부분의 거리값이 일정해지는 성질이 있으며, 사실상 가까운 점들과 먼 점들로 이분할 되는 현상이 발생한다 \citep{aggarwal2001surprising}.
-그렇기 때문에 k-means++ 의 두 번째 단계에서 학습되는 확률 분포는 uniform 분포에 가깝게 되어 많은 계산 비용만 발생한다.
-또한 이전에 선택된 초기 군집 대표값을 기준으로 멀리 떨어진 점을 선택하기 때문에 $c_{t-2}$ 와 $c_t$ 가 멀리 떨어진 점이라는 보장을 하기 어렵다.
+또한 k-means++ 은 고차원 데이터에서 효율적으로 작동하지 않는다.
+표 \ref{tab:cosine_distance_distribution} 는 실험에 이용한 7 종류의 고차원 데이터에서의 점들 간 코싸인 거리 분포이다.
+고차원 공간에서는 대부분의 문서 간 코싸인 거리가 1 에 가깝기 때문에 그림 \citep{arthur2007k} 에서 계산된 확률 분포는 균등 분포에 가깝다.
 
-이를 해결하기 위하여 문서 군집화에 적합한 효율적인 k-means 초기화 방법을 제안한다 (그림 \ref{fig:proposed_initializer}).
+\begin{table}[H]
+\caption{고차원 벡터로 표현된 7 개의 텍스트 데이터에서의 코싸인 거리 분포. D1: A6 블로그, D2: 투스칸 블로그, D3: 소나타 블로그, D4: IMDb 리뷰, D5: Reuters RCV1, D6: MovieLens 20M, D7: Yelp 리뷰 데이터 (\%)}
+\label{tab:cosine_distance_distribution}
+\centering
+\resizebox{\textwidth}{!}{\begin{tabular}{|c|c|c|c|c|c|c|c|}
+\hline
+\multirow{2}{*}{\textbf{Distance range}} & \multicolumn{7}{c|}{\textbf{Dataset}} \\ \cline{2-8} 
+ & \textbf{D1} & \textbf{D2} & \textbf{D3} & \textbf{D4} & \textbf{D5} & \textbf{D6} & \textbf{D7} \\ \hline
+\textbf{\textless{}= 0.7} & 0.249 & 0.59 & 0.323 & 0.272 & 0.045 & 1.456 & 0.01 \\ \hline
+\textbf{0.7 - 0.8} & 0.378 & 1.121 & 0.455 & 7.751 & 0.067 & 2.386 & 0.286 \\ \hline
+\textbf{0.8 - 0.9} & 1.628 & 3.89 & 1.984 & 57.271 & 0.316 & 12.458 & 11.073 \\ \hline
+\textbf{0.9 - 1.0} & 97.745 & 94.399 & 97.239 & 34.706 & 99.573 & 83.7 & 88.632 \\ \hline
+\end{tabular}}
+\end{table}
 
-첫째, 데이터에서 $\alpha \times k$ 개의 점을 임의로 선택하여 $D_{init}$ 을 만든다.
-거의 대부분의 데이터 간 거리가 동일하여 초기값을 선택하기 위하여 모든 점을 고려할 필요가 없기 때문이다.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{제안하는 방법: 문서 군집화를 위하여 개선된 Spherical k-means}
 
-둘째, $D_{init}$ 에서 임의의 한 점 $c_i$ 을 선택한다.
+문서 군집화와 문서 요약을 위하여 개선된 spherical k-means 알고리즘은 두 가지 제안하는 방법이 추가되었다.
+첫째, 코싸인 거리 척도를 이용하는 고차원 벡터 공간에서 효율적으로 작동하는 초기화 방법을 이용한다.
+둘째, k-means 의 학습 결과인 군집 중심값을 이용하여 군집 별 키워드를 추출한다.
 
-셋째, $D_{init}$ 에서 $c_i$ 와 거리가 $t_{init}$ 보다 작은 모든 점을 제거한다.
-이를 통하여 $t_{init}$ 보다 가까운 두 점이 초기 군집 대표값으로 선택되는 것을 방지할 수 있다.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsubsection{문서 군집화를 위한 효율적인 Spherical k-means 초기화}
 
-넷째, $k$ 개의 점이 선택될 때 까지 2 - 3 과정을 반복한다.
-
-다섯째, 2 - 3 과정에서 $k$ 개의 점을 선택하지 못하면 $D - D_{init}$ 에서 나머지 점을 임의로 선택한다.
+k-means 의 초기 군집 중심값이 그림 \ref{fig:initialization_good_bad} (b) 처럼 선택되면 불안정한 군집화 결과가 학습될 수 있다.
+이를 개선하기 위하여 k-means++ 가 제안되었지만, $O(nk)$ 의 초기화 비용을 요구하며 고차원 벡터 공간에서는 효율적으로 작동하지 않는다.
+고차원 벡터에서 서로 떨어진 초기 군집 중심값을 효율적으로 선택하기 위하여 그림 \ref{fig:proposed_initializer} 의 초기화 방법을 제안한다.
 
 \begin{figure}[H]
-\renewcommand{\arraystretch}{0.7}
 \centering
-%\resizebox{\textwidth}{!}
-{\begin{tabular}{|l|}
+\resizebox{\textwidth}{!}{\begin{tabular}{|l|}
 \hline
 \begin{tabular}[c]{@{}l@{}}
-\small
 
 1. Construct set $D_{init}$, $\alpha \times k$ randomly selected data from data $D$\\
 2. Select $c_i$ randomly from $D_{init}$\\
 3. Remove $x_j$ where $x_j \in D_{init}$ and cos($⁡c_{i}, x_{j}$) $\ge t_{init}$\\
-4. Repeat 2 – 3 until $k$ centroid points are selected or $D_{init}$ becomes empty\\
+4. Repeat 2 $\sim$ 3 until $k$ centroid points are selected or $D_{init}$ becomes empty\\
 5. If the number of selected centroid is less than $k$, then select\\ 
 \quad remaining points from $D - D_{init}$ randomly\\
 
 \end{tabular} \\ \hline
 \end{tabular}}
-\caption{Proposed initialization method}
+\caption{개선된 Spherical k-means 초기화 방법}
 \label{fig:proposed_initializer}
 \end{figure}
 
-이 과정은 데이터의 일부의 점만을 초기값 설정에 이용하기 때문에 계산이 빠르며, 3 번 과정으로 인하여 서로 멀리 떨어진 점들을 초기값으로 설정할 수 있다.
-이는 고차원 문서 벡터 공간의 대부분의 거리가 같다는 특징을 이용한 것이다.
+제안하는 방법은 입력 데이터 $D$ 에서 군집의 개수 $k$ 의 $\alpha$ 배수의 점을 임의로 선택하여 $D_{init}$ 을 만든다.
+$\alpha$ 는 사용자에 의하여 설정되는 패러메터이며, 실험을 통하여 1.5 에서 10 의 값이 적절함을 확인하였다.
+제안하는 초기화 방법은 $D_{init}$ 에서 임의로 한 점을 선택한 뒤 $D_{init}$ 의 다른 점들과 코싸인 거리가 사용자 입력 패러매터인 $t_{init}$ 보다 작은 점들을 $D_{init}$ 에서 모두 제거한다.
+그 뒤 다른 한 점을 $D_{init}$ 에서 임의로 선택한 뒤, 이를 $k$ 개의 점이 선택되거나 $D_{init}$ 이 공집합이 될 때 까지 반복한다.
+만약 $k$ 개의 점을 선택하지 못한 경우에는 $D_{init}$ 에 속하지 않은 임의의 점을 선택하여 $k$ 개의 초기 군집 중심값을 선택한다. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.95\linewidth]{figures/kmeans_initialization.png}
+\label{fig:initialization}
+\caption{개선된 Spherical k-means 초기화 방법의 예시 (a) 한 점이 선택된 뒤 코싸인 거리가 $t_{init}$ 보다 작은 점들을 제거한다 (b) 이후 임의의 한 점을 군집 초기값으로 선택한다}
+\end{figure}
+
+표 \ref{tab:cosine_distance_distribution} 에서 알 수 있듯이 대부분의 문서 간 코싸인 거리가 1 에 가깝기 때문에 $D_{init}$ 에서 임의의 점을 선택하여도 선택된 점들 간의 거리 역시 1 에 가까우며, 선택된 점들과 거리가 $t_{init}$ 보다 작은 점들을 제거하였기 때문에 한 지역에서 여러 개의 군집 초기값이 선택될 가능성은 매우 작다 (그림 \ref{fig:initialization}).
+하지만 최대 $(\alpha \times k)^2$ 번의 거리 계산만 필요하기 때문에 문서 집합의 크기가 클 경우 적은 거리 계산만으로 군집 초기값을 선택할 수 있다 ($\alpha \times k \ll n$).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Document clustering labeling}
+\subsubsection{중심 벡터를 이용한 문서 군집 별 키워드 추출 방법}
 
-각 군집별로 키워드를 추출함으로써 군집 레이블링을 할 수 있다.
-키워드는 한 군집에서 자주 등장하며, 다른 군집과 구분할 수 있는 단어여야 한다 \citep{snyder2013topic}.
-군집 레이블을 문서들의 레이블로 이용하여 문서 분류기를 학습함으로써 키워드를 추출할 수도 있지만 \citep{zhang2006keyword, onan2016ensemble}, 이는 문서 분류기를 추가르 학습해야만 한다.
-반면 토픽 레이블링을 위해 제안된 방법들은 토픽 벡터의 값으로부터 간단한 통계를 통하여 키워드를 추출한다 \citep{chuang2012termite, snyder2013topic}.
-이 장에서는 추가적인 모델의 학습을 하지 않는 문서 레이블링을 위한 키워드 추출 방법을 제안한다.
+문서 군집화 과정은 각 문서가 속한 클래스의 정보가 존재하지 않는 상황에서 이용되기 때문에 군집 별 키워드에 대한 정답 데이터도 존재하지 않는 경우가 많다.
+각 군집에 \ref{summarize_single_topic} 장에서 제안된 방법이나 TextRank 와 비지도학습 기반 문서 요약 방법을 적용할 수도 있으나, 이는 추가적인 모델 학습을 요구한다.
+문서 군집화와 비슷한 분야인 토픽 모델링 분야에서도 비슷한 문제를 해결하기 위하여 비지도학습 기반 토픽 레이블링 기법이 활발히 연구되었다 \citep{newman2010evaluating, sievert2014ldavis, chuang2012interpretation, snyder2013topic, chuang2012termite, blei2003latent}.
 
-k-means 는 학습 결과로 각 문서가 속한 군집의 레이블과 군집 별 대표 벡터 (centroid vectors) 를 얻을 수 있다.
-문서가 분산 표상 표현의 벡터로 입력되더라도 군집 레이블을 이용하여 bag-of-words model 형태의 군집 별 대표 벡터를 만들 수 있다.
-Bag-of-words model 형태의 군집 대표 벡터를 L1 정규화하면 군집 내 문서에서의 단어 분포 확률 벡터로 해석할 수 있다.
-식 \ref{eq:proposed_labeler} 은 각 군집 $c_i$ 에서 단어 $w$ 의 키워드 점수로, $p_i(w)$ 는 군집 $c_i$ 에서의 단어 $w$ 가 등장한 확률이며, $p_{-i}(w)$ 는 군집 $i$ 를 제외한 문서 집합에서의 단어 $w$ 의 등장 확률 분포이다.
+문서 집합의 주제가 단일할 경우에는 빈도수가 높은 단어가 문서 집합을 대표하는 키워드일 가능성이 높다.
+하지만 모든 군집에서 빈도수가 높은 단어는 정보를 지니지 않은 단어일 가능성이 높기 때문에 각 군집을 구분할 수 있는 단어를 군집의 키워드로 선택하는 것이 좋다.
+그러나 군집 간 구분력이 좋은 단어는 빈도수가 작아 각 군집을 대표하지 못할 수 있다.
+제안하는 군집 별 키워드 추출 방법은 군집 간 구분력과 군집의 대표성을 모두 고려하여 키워드를 추출한다.
+
+식 \ref{eq:proposed_labeler} 은 제안하는 군집 별 키워드 추출 방법으로, $s(w, C_i$ 은 군집 $C_i$ 에서의 단어 $w$ 의 군집 구분력 점수이다.
+$p_i (w)$ 는 군집 $C_i$ 에서의 단어 $w$ 의 등장 비율이며, $p_{-i} (w)$ 는 군집 $C_i$ 을 제외한 다른 문서 집합에서의 단어 $w$ 의 등장 비율이다.
+$p_i (w)$ 와 $p_{-i} (w)$ 가 비슷하면 단어 $w$ 는 군집과 상관성이 적은 단어임을 의미하며, $p_i (w)$ 가 $p_{-i} (w)$ 보다 클 경우에는 군집 $C_i$ 에 유독 등장한 단어임을 의미한다.
+$s(w, C_i)$ 의 범위는 [0, 1] 로 1 에 가까울수록 군집 $C_i$ 구분하는 단어임을 의미한다.
 
 \begin{equation}
 \label{eq:proposed_labeler}
 \centering
-s(w, c_i) = \frac{p_i (w)}{p_i (w) + p_{-i}(w)}
+s(w, C_i) = \frac{p_i (w)}{p_i (w) + p_{-i}(w)}
 \end{equation}
 
-이 값이 클수록 distinctiveness 를 지니는데, 단어 $w$ 가 군집 $c_i$ 에서만 등장할 경우 1 을, 다른 문서 집합과 동일한 분포로 등장할 경우 0.5 의 값을 가진다.
-하지만 희귀한 단어는 1 에 가까운 값을 지니는 경우가 많다.
-이를 방지 하기 위하여 각 군집별로 $p_i(w)$ 가 큰 $k_0$ 개의 단어를 선택한 뒤 식 \ref{eq:proposed_labeler} 가 큰 $k_1$ 개의 단어를 선택하면 saliency 와 distinctiveness 를 모두 지닌 키워드를 선택할 수 있다.
-이 과정은 추가적인 모델의 학습이 필요하지 않기 때문에 군집의 개수가 많더라도 빠르게 군집 별 키워드를 추출할 수 있다.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Merging similar cluster}
-
-k-means 의 단점 중 하나는 각 군집의 크기가 서로 다를 경우, 이들이 같은 크기의 군집으로 학습되는 uniform effect 현상이 발생한다 \citep{xiong2009k}.
-이를 해결하기 위해서는 하나의 군집을 작은 여러 개의 군집들로 표현해야 하기 때문에 군집의 개수는 예상하는 군집 개수보다 크게 설정하는 것이 좋다 \citep{liang2012k}.
-큰 크기의 클래스가 여러 개로 나뉘어질 경우 후처리로 병합이 가능하지만, 크기가 작은 클래스가 여러 개의 큰 군집으로 나뉘어질 경우 이들의 복원은 매우 어렵기 때문이다.
-
-하지만 군집의 개수가 많으면 하나의 주제에 대한 문서 집합이 여러 개의 군집으로 나뉘어진다.
-이를 해결하기 위하여 그림 \ref{fig:kmeans_postprocessing} 의 후처리 과정을 거칠 수 있다.
-먼저 군집의 문서 개수 역순으로 각 군집을 정렬한 뒤, 첫번째 군집을 병합된 하나의 군집 $M_j$ 로 할당한다.
-두번째 큰 군집부터 순차적으로 모든 병합된 군집과 유사도를 계산한다.
-만약 병합된 군집 $M_j$ 에 속한 모든 군집들과 $t_merge$ 이상의 유사도를 지니면 이를 $M_j$ 에 추가하고, 그렇지 않으면 독립적인 새로운 병합된 군집을 만든다.
-이 과정을 이용하면 크기가 작은 클래스도 독립적인 군집으로 추출하면서 큰 클래스가 여러 개의 중복된 군집으로 나뉘어지는 것을 방지할 수 있다.
-
-\begin{figure}[H]
-\renewcommand{\arraystretch}{0.7}
-\centering
-% \resizebox{\textwidth}{!}
-{\begin{tabular}{|l|}
-\hline
-\begin{tabular}[c]{@{}l@{}}
-
-1. Sort clusters $C_1, C_2, \dots, C_k$ by their document frequency in decreasing order.\\
-2. For centroid $c_i$,\\
-\quad if there exists a merged cluster $M_j$, in which $\forall c_p \in M_j, cos{(c_i, c_p)} \ge t_{merge}$,\\
-\quad \quad $M_j \leftarrow M_j \cup \{ C_i \}$\\
-\quad else\\
-\quad \quad create new merged cluster $M_j$ = $\{C_i\}$\\
-
-\end{tabular} \\ \hline
-\end{tabular}}
-\caption{Merging similar clusters with similarity threshold}
-\label{fig:kmeans_postprocessing}
-\end{figure}
+그러나 빈도수가 매우 작은 단어는 한 군집에서만 등장하여 $s(w, C_i)$ 의 점수가 1 일 가능성이 높다.
+이를 방지하기 위하여 각 군집별로 $p_i (w)$ 기준 상위 $k_0$ 개의 단어를 키워드 후보로 선택한 뒤, $s(w, C_i)$ 기준 상위 $k_1$ 개의 단어를 키워드로 선택한다.
+선택된 키워드는 한 군집에서 자주 등장하는 단어임과 동시에 $C_i$ 에서 유독 등장하는 단어이다.
+각 문서가 Doc2Vec 과 같은 분산 표상 벡터로 표현된 경우에는 문서의 단어 빈도 벡터를 추가로 계산해야 하지만, 문서가 Bag-of-words model 로 표현된 경우에는 군집 중심 벡터가 $p_i (w)$ 로 이용될 수 있다.
+이 때는 다른 군집의 크기를 가중치로 이용하여 다른 군집 중심 벡터의 가중 평균을 $p_{-i}(w)$ 로 이용할 수 있다.
+이 방법은 \citep{zhang2006keyword, onan2016ensemble} 처럼 정답 데이터를 필요로 하거나 새로운 모델을 학습하지 않고도 빠르게 키워드를 추출한다.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Franework of proposed method}
+\subsubsection{제안하는 방법의 의사 코드}
 
 그림 \ref{fig:pseudocode} 은 제안하는 문서 군집화 알고리즘의 의사 코드이다.
-제안하는 방법은 대량의 문서 군집화를 위한 빠른 초기화 알고리즘과 중복된 군집을 병합하기 위한 후처리 기능, 그리고 군집 대표 벡터를 이용한 군집 레이블링 기능이 포함되어 있다.
-사용자는 $\alpha$ 와 $t_{init}$ 를 통하여 초기화에 이용할 점들의 개수와 초기화된 점들 간의 거리를 조절할 수 있으며, $t_{merge}$ 를 통하여 병합된 군집의 크기를 조절할 수 있다.
-또한 $k_0$ 와 $k_1$ 을 이용하여 군집 별 키워드 및 후보 단어의 개수를 조절할 수 있다.
+제안하는 방법은 대량의 문서 군집화를 위한 빠른 초기화 알고리즘과 군집 대표 벡터를 이용한 군집 레이블링 기능이 포함되어 있다.
+사용자는 $\alpha$ 와 $t_{init}$ 를 통하여 초기화에 이용할 점들의 개수와 초기화된 점들 간의 거리를 조절하며 $k_0$ 와 $k_1$ 을 이용하여 군집 별 키워드 및 후보 단어의 개수를 조절한다.
 
 \begin{figure}[H]
 \renewcommand{\arraystretch}{0.7}
@@ -2447,23 +2486,21 @@ k-means 의 단점 중 하나는 각 군집의 크기가 서로 다를 경우, �
 $D$: dataset\\
 $k$: a number of clusters\\
 $t_{init}$: minimum distance for initializer\\
-$t_{merge}$: threshold for merging similar clusters\\
 $k_0$: number of keyword candidates\\
 $k_1$: number of selected keywords\\
 \\
 \textbf{def improved\_kmeans} ($D, k, \alpha, t_{init}, t_{merge}, k_0, k_1$):\\
 \quad $C$ $\leftarrow$ Initialize $k$ centroids with sparse initializer ($D, k, \alpha, t_{init}$)\\
-\quad $L$ $\leftarrow$- Assign all points to its closest centroid\\
+\quad $L$ $\leftarrow$ Assign all points to its closest centroid\\
 \quad while (not converged):\\
 \quad \quad $C$ $\leftarrow$ Update centroid. Averaging their belonging points \\
 \quad \quad $L$ $\leftarrow$ Reassign all the points to its closest centroid\\
-\quad $C$ $\leftarrow$ merge similar cluster ($C, L, t_{merge}$)\\
 \quad $Z$ $\leftarrow$ cluster labeling ($C, L, k_0, k_1$)\\
 \quad \textbf{return} $C$, $L$, $Z$
 
 \end{tabular} \\ \hline
 \end{tabular}
-\caption{Pseudo code of improved k-means}
+\caption{개선된 Spherical k-means 의 의사 코드}
 \label{fig:pseudocode}
 \end{figure}
 
@@ -2490,18 +2527,12 @@ Horror & gayheart, loretta, candyman, legends, urban, witt, campus, tara, reid, 
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Visualization of document clustering results}
+\subsection{중심 벡터의 차원 축소와 군집 레이블을 이용한 군집화 결과 시각화}
 
 LDAVis 를 이용한 문서 군집화 결과 시각화
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{Conclusion}
-
-\vspace{3cm}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newpage
-\section{결론}
+\subsection{결론}
 
 \vspace{3cm}
 

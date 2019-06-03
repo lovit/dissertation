@@ -105,7 +105,7 @@ Unsupervised Korean Tokenizer and Extractive Document Summarization to Solve Out
 
 셋째, 텍스트 데이터에는 노이즈가 존재한다.
 특정 과업을 위해 태깅된 데이터를 구하기는 어렵지만, 레이블이 존재하지 않는 텍스트 데이터를 구하는 것은 어렵지 않다.
-많은 양의 텍스트 데이터는 사람에 의하여 제작되기 떄문에 띄어쓰기 오류나 철자법 오류가 존재한다.
+많은 양의 텍스트 데이터는 사람에 의하여 제작되기 때문에 띄어쓰기 오류나 철자법 오류가 존재한다.
 사전을 이용하는 품사 판별기는 철자법이 틀린 단어를 제대로 인식할 수 없다.
 또한 띄어쓰기가 제대로 지켜지지 않으면 단어 간의 경계를 제대로 인식하지 못한다.
 자연어처리 과업의 성능을 높이기 위해서는 노이즈를 제거하는 과정이 필요하다.
@@ -2334,7 +2334,7 @@ k-means 는 초기의 군집 중심값이 잘 설정어야 안정적인 학습 �
 \begin{figure}[H]
 \centering
 \includegraphics[keepaspectratio=true, width=0.95\linewidth]{figures/kmeans_initialization_good_bad.png}
-\caption{(a) Good initial points, (b) Bad initial points}
+\caption{(a) 기대하는 초기 군집 중심값, (b) 잘못된 초기 군집 중심값}
 \label{fig:initialization_good_bad}
 \end{figure}
 
@@ -2512,35 +2512,249 @@ $k_1$: number of selected keywords\\
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{성능 평가}
 
+제안하는 문서 군집화 방법은 코싸인 척도를 이용하는 고차원 공간에서 효율적으로 작동하는 초기화 방법과 문서 군집화 결과를 이용하여 키워드를 추출하는 두 가지 방법으로 구성되어 있다.
+제안된 k-means 초기화 방법의 성능을 확인하기 위해서는 초기화 과정에서의 계산 속도 감소량과 초기화 방법에 의한 군집화 품질의 변화를 확인하였다.
+하지만 문서 군집화 결과를 이용한 키워드 추출 과업의 경우 객관적인 정답 데이터를 확보하기 어렵기 때문에 예시를 통한 정성 평가를 수행하였다.
+
+제안된 방법의 성능을 확인하기 위하여 7 종류의 문서 집합 데이터를 실험에 이용하였다 (표 \ref{tab:dataset_description}).
+A6, 투스칸, 소나타 블로그는 네이버 블로그에서 수집된 문서 집합으로, 각각의 질의어가 포함된 블로그들로 구성되어 있다.
+IMDb 리뷰 데이터는 2,514 개의 리뷰로 이뤄진 데이터로, IMDb 로부터 수집되었다.
+RCV1, MovieLens 20M, Yelp 리뷰는 공개된 데이터이다.
+RCV1 은 단어 문서 행렬 형태로 배포된다.
+MovieLens 20M 은 '사용자 - 영화' 시청 내역 데이터이지만, 희소 행렬로 표현된 형태가 문서의 단어 빈도 행렬과 비슷하다.
+Yelp 리뷰 데이터는 사용자에 의하여 작성된 식당 리뷰와 평점 데이터로, 실험에서는 리뷰 텍스트만 이용하였다.
 
 \begin{table}[H]
 \centering
-\caption{Example of cluster labels from k=1,000 clustering result with IMDb reviews}
+\caption{실험에 이용한 7 종류의 데이터셋}
+\label{tab:dataset_description}
+\resizebox{\textwidth}{!}{\begin{tabular}{|c|c|c|c|c|}
+\hline
+\textbf{데이터} & \textbf{\begin{tabular}[c]{@{}c@{}}문서 개수\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}단어 개수\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}단어 빈도 행렬의\\0이 아닌 값의 개수\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}단어 빈도 행렬의 0이 아닌 값의 비율\end{tabular}} \\ \hline
+\textbf{A6 블로그} & 63,153 & 91,302 & 18,051,341 & 0.313 \% \\ \hline
+\textbf{투스칸 블로그} & 105,755 & 81,497 & 29,192,999 & 0.339 \% \\ \hline
+\textbf{소나타 블로그} & 229,253 & 85,129 & 60,861,803 & 0.312 \$ \\ \hline
+\textbf{IMDb 리뷰} & 1,228,348 & 68,049 & 181,411,713 & 0.217 \% \\ \hline
+\textbf{Reuter RCV1} & 804,414 & 47,236 & 60,915,113 & 0.160 \% \\ \hline
+\textbf{MovieLens 20M} & 138,493 & 131,262 & 20,000,263 & 0.110 \% \\ \hline
+\textbf{Yelp 리뷰} & 5,261,669 & 27,247 & 365,341,887 & 0.255 \% \\ \hline
+\end{tabular}}
+\end{table}
+
+\subsubsection{제안된 초기화 방법의 성능 평가}
+
+제안된 초기화 방법의 성능을 확인하기 위하여 초기화 계산 속도와 문서 군집화 품질을 확인하였다.
+
+표 \ref{tab:performance_initialization_time} 는 제안된 초기화 방법과 k-means++ 의 초기화 계산 시간이다.
+제안된 방법은 $\alpha$ 가 커짐에 따라 계산 시간이 비례하여 커지는 경향이 있으나, 모든 데이터에서 k-means++ 보다 훨씬 빠른 초기화 속도를 보여준다.
+제안된 방법은 $D_{init}$ 에서만 문서 간 거리를 계산하므로 $n$ / ($\alpha \times k$) 에 비례하여 효율성이 증가한다.
+즉 $k$ 가 일정할 경우 문서의 크기가 클수록 더욱 효율적인 초기화가 가능하다.
+
+\begin{table}[H]
+\small
+\centering
+\caption{제안된 초기화 방법과 k-means++ 를 이용한 초기화 시간. k-means++ 의 계산 시간은 초 단위로 표시하였으며, 제안된 방법은 k-means++ 대비 향상된 계산 시간 배율로 표시하였다}
+\label{tab:performance_initialization_time}
+\renewcommand{\arraystretch}{.67}
+\begin{tabular}{|c|c|c|c|c|c|}
+\hline
+\multirow{2}{*}{Data} & \multirow{2}{*}{$\alpha$} & \multicolumn{4}{c|}{k} \\ \cline{3-6} 
+ &  & 10 & 20 & 50 & 100 \\ \hline
+\multirow{5}{*}{A6 blogs} & 1 & x 288 & x 268 & x 260 & x 233 \\ \cline{2-6} 
+ & 3 & x 265 & x 257 & x 213 & x 150 \\ \cline{2-6} 
+ & 5 & x 248 & x 226 & x 166 & x 99 \\ \cline{2-6} 
+ & 10 & x 217 & x 159 & x 100 & x 54 \\ \cline{2-6} 
+ & k-means++ & 5 s & 10 s & 25 s & 52 s \\ \hline
+\multirow{5}{*}{Tucson blogs} & 1 & x 464 & x 487 & x 397 & x 367 \\ \cline{2-6} 
+ & 3 & x 388 & x 440 & x 306 & x 244 \\ \cline{2-6} 
+ & 5 & x 358 & x 376 & x 261 & x 172 \\ \cline{2-6} 
+ & 10 & x 312 & x 279 & x 160 & x 102 \\ \cline{2-6} 
+ & k-means++ & 7 s & 16 s & 41 s & 82 s \\ \hline
+\multirow{5}{*}{Sonata blogs} & 1 & x 777 & x 941 & x 860 & x 777 \\ \cline{2-6} 
+ & 3 & x 785 & x 841 & x 614 & x 495 \\ \cline{2-6} 
+ & 5 & x 707 & x 770 & x 534 & x 376 \\ \cline{2-6} 
+ & 10 & x 600 & x 615 & x 330 & x 208 \\ \cline{2-6} 
+ & k-means++ & 16 s & 33 s & 86 s & 175 s \\ \hline
+\multirow{5}{*}{IMDb review} & 1 & x 1165 & x 1257 & x 2137 & x 2253 \\ \cline{2-6} 
+ & 3 & x 803 & x 714 & x 1988 & x 1787 \\ \cline{2-6} 
+ & 5 & x 1180 & x 1172 & x 1715 & x 1381 \\ \cline{2-6} 
+ & 10 & x 815 & x 1062 & x 1301 & x 866 \\ \cline{2-6} 
+ & k-means++ & 41 s & 84 s & 214 s & 431 s \\ \hline
+\multirow{5}{*}{Reuters RCV1} & 1 & x 511 & x 686 & x 819 & x 892 \\ \cline{2-6} 
+ & 3 & x 439 & x 713 & x 850 & x 772 \\ \cline{2-6} 
+ & 5 & x 520 & x 685 & x 672 & x 678 \\ \cline{2-6} 
+ & 10 & x 518 & x 639 & x 622 & x 425 \\ \cline{2-6} 
+ & k-means++ & 13 s & 28 s & 71 s & 146 s \\ \hline
+\multirow{5}{*}{MovieLens 20M} & 1 & x 193 & x 215 & x 218 & x 210 \\ \cline{2-6} 
+ & 3 & x 202 & x 213 & x 214 & x 184 \\ \cline{2-6} 
+ & 5 & x 202 & x 204 & x 186 & x 145 \\ \cline{2-6} 
+ & 10 & x 189 & x 172 & x 144 & x 103 \\ \cline{2-6} 
+ & k-means++ & 4 s & 9 s & 24 s & 49 s \\ \hline
+\multirow{5}{*}{Yelp reviews} & 1 & x 484 & x 876 & x 1535 & x 3092 \\ \cline{2-6} 
+ & 3 & x 368 & x 908 & x 1508 & x 2917 \\ \cline{2-6} 
+ & 5 & x 362 & x 903 & x 1877 & x 1595 \\ \cline{2-6} 
+ & 10 & x 351 & x 598 & x 1143 & x 2120 \\ \cline{2-6} 
+ & k-means++ & 81 s & 164 s & 421 s & 848 s \\ \hline
+\end{tabular}
+\end{table}
+
+제안된 초기화 방법이 군집화 품질에 미치는 영향력을 확인하기 위하여 '군집 내 평균 거리', '군집 간 평균 거리', 'Silhouette 점수'를 이용하여 군집화 품질을 측정하였다.
+Silhouette 점수는 군집화 품질을 측정하는 척도 중 하나로 \citep{rousseeuw1987silhouettes, lewis2012human}, 식 \ref{eq:silhouette} 으로 정의된다.
+군집 내 평균 거리와 가장 가까운 다른 군집 간 거리 차가 클수록 더 높은 점수가 계산된다.
+'군집 내 평균 거리'는 감소할수록 '군집 간 평균 거리'는 증가할수록, 'Silhouette 점수'도 증가할수록 군집화 품질이 향상됨을 의미한다.
+
+\begin{equation}
+\label{eq:silhouette}
+\centering
+s(x) = \frac{b(x) - a(x)}{max(a(x), b(x))}
+\end{equation}
+
+\begin{flushleft}
+$a(x)$ : 점 $x$ 가 속한 군집 내 평균 거리 \\
+$b(x)$ : 점 $x$ 와 가장 가까운 다른 군집의 점들 간 평균 거리 \\
+\end{flushleft}
+
+표 \ref{tab:performance_initialization} 는 각 척도별로 제안된 방법의 군집화 품질의 평균을 계산한 뒤, k-means++ 를 이용한 군집화 품질로 나눈 값이다.
+$k$ 다를 경우 각 군집화 품질 값의 경향이 달라지므로 같은 $k$ 를 기준으로 군집화 품질의 배율을 계산하였다.
+그 결과 군집화 품질 기준과 데이터셋에 관계없이 대부분 1 에 가까운 값임을 확인하였고, 이는 제안하는 방법에 의한 군집화 품질의 손실은 없음을 의미한다.
+즉, 제안한 방법은 군집화 품질의 손실 없이 효율적인 k-means 초기화를 수행한다.
+
+\begin{table}[H]
+\centering
+\caption{제안된 초기화 방법과 k-means++ 를 이용한 평균 군집화 품질의 배율}
+\label{tab:performance_initialization}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Data} & \textbf{\begin{tabular}[c]{@{}c@{}}Intra-cluster \\ distance\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}Inter-cluster \\ distance\end{tabular}} & \textbf{\begin{tabular}[c]{@{}c@{}}Silhouette \\ score\end{tabular}} \\ \hline
+\textbf{A6 blogs} & 0.986 & 1.001 & 1.124 \\ \hline
+\textbf{Tucson blogs} & 1.006 & 1.000 & 0.998 \\ \hline
+\textbf{Sonata blogs} & 1.005 & 1.000 & 1.038 \\ \hline
+\textbf{IMDb reviews} & 0.999 & 1.000 & 0.984 \\ \hline
+\textbf{Reuters RCV1} & 0.999 & 1.001 & 1.019 \\ \hline
+\textbf{MovieLens 20M} & 1.002 & 0.996 & 1.102 \\ \hline
+\textbf{Yelp reviews} & 1.001 & 0.991 & 0.980 \\ \hline
+\end{tabular}
+\end{table}
+
+
+\subsubsection{제안된 문서 군집 별 키워드 추출 방법의 성능 평가}
+
+앞선 초기화 방법의 성능을 평가하기 위해서 모든 데이터에 동일한 $k$ 를 이용하여 문서 군집화를 수행하였다.
+하지만 IMDb 리뷰의 의미있는 군집화 결과를 학습하기 위해서 군집의 개수를 1,000 으로 설정하였다.
+
+표 \ref{tab:imdb_cluster_label} 은 IMDb 의 군집화 결과에 제안된 군집 별 키워드 추출 방법이 적용된 5 개 군집의 예시이다.
+각 군집을 구분할 수 있는 단어들이 키워드로 선택되었기 때문에 군집의 의미를 쉽게 해석할 수 있다.
+표 \ref{tab:imdb_cluster_label} 와 \ref{tab:sonata_cluster_label} 의 두번째 열은 군집 별 키워드이며 첫번째 열은 키워드를 통하여 해석한 군집 별 레이블이다.
+표 \ref{tab:imdb_cluster_label} 의 첫 군집은 영화 "Titanic" 과 관련된 문서들이, 다섯 번째 군집은 영화 "Matrix" 와 관련된 문서들이 하나의 군집을 이뤘음을 알 수 있다.
+하지만 다른 세 개의 군집은 비슷한 주제의 영화들이 각각 하나의 군집을 이뤘음을 해석할 수 있다.
+예시에서 살펴볼 수 있듯이 제안한 군집 별 키워드 추출 방법은 각 군집의 의미를 해석할 수 있는 키워드를 제공한다.
+
+\begin{table}[H]
+\renewcommand{\arraystretch}{0.5}
+\centering
+\caption{IMDb 리뷰의 k=1,000 문서 군집화 결과}
 \label{tab:imdb_cluster_label}
-\resizebox{\textwidth}{!}{\begin{tabularx}{\textwidth}{sb}
+%\resizebox{\textwidth}{!}{
+\begin{tabularx}{\textwidth}{sb}
 \hline
 
-Cluster category & Cluster labels \\ \hline
+군집 종류 & 군집 별 키워드 \\ \hline
 "Titanic" & iceberg, zane, sinking, titanic, rose, winslet, camerons, 1997, leonardo, leo, ship, cameron, dicaprio, kate, tragedy, jack, disaster, james, romance, love, effects, story\\ \hline
 Heros of Marvel comics & zemo, chadwick, boseman, bucky, panther, holland, cap, infinity, mcu, russo, civil, bvs, antman, winter, ultron, airport, avengers, marvel, captain, superheroes, stark, evans, america, iron, spiderman\\ \hline
 Alien sci-fi & skyline, jarrod, balfour, strause, invasion, independence, cloverfield, angeles, district, los, worlds, aliens, alien, la, budget, scifi, battle, cgi, day, effects, war\\ \hline
 Horror & gayheart, loretta, candyman, legends, urban, witt, campus, tara, reid, legend, alicia, englund, leto, scream, murders, slasher, helen, killer, student, teen, summer, cut, horror, final, sequel, scary \\ \hline
 "Matrix" & neo, morpheus, neos, oracle, trinity, zion, architect, hacker, reloaded, revolutions, wachowski, fishburne, machines, agents, matrix, keanu, smith, reeves, agent, jesus, machine, computer, fighting, fight, real \\ \hline
 
-\end{tabularx}}
+\end{tabularx}
+%}
+\end{table}
+
+표 \ref{tab:sonata_cluster_label} 는 $k=500$ 으로 설정한 소나타 블로그 군집화 결과에 제안된 군집 별 키워드 추출 방법이 적용된 5 개 군집의 예시이다.
+첫번째 군집은 제주도 여행과 렌트카 광고에 관련된 문서들이 하나의 군집으로 묶였으며, 두번째 군집은 중고차 매매에 관련된 문서들이 하나의 군집으로 묶였다.
+제안된 키워드 추출 방법은 각 군집을 구분할 수 있는 단어를 키워드로 선택하기 때문에 '자동차'나 '세단'과 같은 단어보다 차량 모델명이나 여행사 이름과 같은 단어가 키워드로 선택되었다.
+네번째와 다섯번째 군집은 각각 가수 아이비의 노래인 "유혹의 소나타"와 관련된 문서가, "광염 소나타"를 비롯한 일제 강점기 소설과 관련된 문서가 군집을 이뤘다.
+이들은 다른 문서 집합에 비하여 문서의 개수가 적은 군집이지만, 군집화 결과의 품질이 좋을 경우 제안한 키워드 추출 방법은 해석력이 좋은 단어를 키워드로 제공한다.
+
+\begin{table}[H]
+\renewcommand{\arraystretch}{0.5}
+\centering
+\caption{소나타 블로그의 k=500 문서 군집화 결과}
+\label{tab:sonata_cluster_label}
+\begin{tabularx}{\textwidth}{sb}
+\hline
+
+군집 종류 & 군집 별 키워드 \\ \hline
+렌트카 광고 & 제주렌트카, 부산출발제주도, 제주신, 이끌림, 제주올레, 왕복항공, 불포함, 제주도렌트카, 064, 롯데호텔, 자유여행, 객실, 제주여행, 특가, 해비치, 제주시, 제주항, 티몬, 2박3일, 올레, 유류, 항공권, 조식, 제주도여행, 제주공항, 2인 \\ \hline
+중고차 매매 & 최고급형중고, 최고급, 프리미어, 프라임, 2011년식, YF소나타TOP, 2010년식, 풀옵션, 2011년, YF소나타PR, 1인, Y20, 2010년, 완전무사고, 판매완료, 군포, 검정색, YF쏘나타, 2011, 하이패스, 2010, 무사고, 등급, 파노라마, 허위매물 \\ \hline
+클래식 음악 & 금관악기, 아이엠, Tru, 트럼펫, 트럼, 나팔, 금관, 텔레만, Eb, 호른, 오보에, Tr, Concerto, 하이든, 협주곡, Ha, 악기, 연주하는, 오케, 오케스트라, 독주, 악장, 작곡가, 곡 \\ \hline
+아이비 "유혹의 소나타" & Song, 공부할, 부른, 노래, 가사, 부르는, 가수, 보컬, 목소리, 발라드, 명곡, 신나, 들으면, 듣기, 유혹의, 앨범,아이비, 제목 \\ \hline
+광염 소나타 및 일제 강점기 소설들 & 백성수, 발가락, 현진, 이광수, 김유, 자연주의, 친일, 평양, 운수, 유미, 저지르, 야성, 탐미, 김동인, 복녀, 광염, 닮았다, 사실주의, 광기, 저지, 1920, 단편소설, 범죄, 감자, 동인, 한국문학 \\ \hline
+
+\end{tabularx}
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{중심 벡터의 차원 축소와 군집 레이블을 이용한 군집화 결과 시각화}
 
-LDAVis 를 이용한 문서 군집화 결과 시각화
+토픽 모델링 분야에서는 LDA 와 같은 토픽 모델링의 학습 결과를 시각적으로 표현하기 위한 연구들이 제안되었다 \citep{sievert2014ldavis, chuang2012interpretation, snyder2013topic, chuang2012termite, gretarsson2012topicnets, ramage2009topic}.
+특히 \citep{chuang2012interpretation} 는 토픽 모델링처럼 고차원 공간을 해석할 경우에는 t-SNE \citep{maaten2008visualizing, van2014accelerating} 처럼 고정된 시각화 결과를 이용하면 공간을 왜곡하여 이해할 가능성이 높기 때문에 상호형의 (interactive) 시각화 방법을 이용해야 한다고 언급하였다.
+LDAvis 는 토픽 모델링의 결과인 '문서 - 토픽' 확률 행렬과 '토픽 - 단어' 확률 행렬이 주어질 경우, 차원 축소 방법과 키워드 추출 방법을 이용하여 상호형의 시각화된 토픽 모델링 결과를 제공한다 \citep{sievert2014ldavis}.
+
+문서 군집화 결과는 토픽 모델링으로 해석할 수 있다.
+LDA \citep{blei2003latent} 나 pLSI \citep{hofmann1999probabilistic} 는 한 문서에 여러 개의 토픽이 존재할 수 있다고 가정하지만, k-means 는 하나의 문서에 하나의 토픽이 존재한다고 가정한다.
+문서 군집화 결과의 '문서 - 토픽' 확률 벡터는 문서 별 토픽에 대한 ont hot 벡터이며, '토픽 - 단어' 확률 행렬은 군집 내 단어의 출현 비율 행렬이다.
+
+LDAvis 는 각 토픽별로 키워드를 선택하기 위하여 두 종류의 키워드 점수를 조합한다.
+식 \ref{eq:ldavis_keyword} 의 $P(w \vert t)$ 는 토픽 별 단어 출현 확률이며 자주 등장한 단어를 키워드로 선택함을 의미한다.
+$P(w \vert t)$ / $P(w)$ 은 토픽 별 단어 출현 확률을 문서 집합에서의 출현 확률로 나눈 값으로, 특정 토픽에만 자주 등장한 단어를 키워드로 선택함을 의미한다.
+
+\begin{equation}
+\label{eq:ldavis_keyword}
+\centering
+r(w \vert t) = \lambda P(w \vert t) + (1 - \lambda) \times \frac{P(w \vert t)}{P(w)}
+\end{equation}
+
+k-means 의 군집화 결과인 군집 중심값에 L1 정규화를 적용하면 군집 별 단어 출현 확률을 얻을 수 있으며, 이를 식 \ref{eq:ldavis_keyword} 의 $P(w \vert t)$ 로 이용할 수 있다.
+식 \ref{eq:proposed_labeler} 를 이용하면 특정 군집에만 자주 등장한 단어를 찾을 수 있으며, 이를 식 \ref{eq:ldavis_keyword} 의 $P(w \vert t)$ / $P(w)$ 로 이용할 수 있다.
+
+LDAvis 와 제안한 키워드 점수를 이용하면 그림 \ref{fig:initialization} 처럼 군집화 결과를 시각화하여 표현할 수 있다.
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.95\linewidth]{figures/kmeans_visualization.png}
+\label{fig:initialization}
+\caption{LDAvis 를 이용한 spherical k-means 학습 결과 시각화 예시}
+\end{figure}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{결론}
 
+이 장에서는 문서 집합이 다양한 주제의 문서들로 구성된 경우, 문서 군집화 기법을 이용하여 단일한 주제의 문서들로 군집을 구성한 뒤 각 군집의 키워드를 추출함으로써 문서 집합을 요약하는 방법을 제안하였다.
+문서 집합의 크기가 클 경우에도 효율적인 spherical k-means 학습이 가능하도록 초기화 함수를 개선하였으며, 추가적인 키워드 추출 모델의 학습 없이 군집 중심값만을 이용하여 각 군집의 키워드를 추출하는 방법도 함께 제안하였다.
+제안된 방법은 7 개의 데이터를 이용한 실험을 통하여 군집화 품질의 손실없이 효율적으로 문서 군집화 학습이 가능함이 확인되었으며, 데이터의 크기가 클수록 효율성이 증가하였다.
+제안된 군집 별 키워드 추출 방법은 각 군집의 의미를 해석할 수 있는 단어들을 키워드로 제공함을 정성 평가를 통하여 확인하였다.
+또한 토픽 모델링의 시각화 방법인 LDAvis 를 이용하면 spherical k-mean 의 학습 결과도 시각화 할 수 있었다.
+
+\label{summarize_single_topic} 장에서 제안된 핵심 문장 추출 방법은 문서 집합과 키워드 집합이 주어질 경우 핵심 문장의 추출이 가능하다.
+\label{improved_kmeans} 장에서는 제안된 방법은 각 군집 별 키워드를 제공하기 때문에 \label{summarize_single_topic} 장의 방법을 함께 이용할 경우 군집 별 핵심 문장 추출도 가능하다.
+
+제안된 방법은 k-means 알고리즘의 한계점을 개선할 경우 더 정확한 문서 요약이 가능하다.
+첫째로 k-means 알고리즘은 적절한 군집의 개수 $k$ 를 사용자가 직접 설정해야 한다.
+군집의 개수가 지나치게 작으면 여러 주제가 하나의 군집으로 합쳐져 한 군집의 키워드를 해석하기 어려우며, 군집의 개수가 지나치게 클 경우 한 주제가 여러 개의 중복된 군집으로 나뉘어지기 때문에 식 \ref{eq:proposed_labeler} 이 잘 정의되지 않는다.
+Silhouette 점수는 군집의 개수를 결정하는데 이용할 수 있는 척도이지만 고차원 벡터 공간에서는 잘 작동하지 않는다 \citep{almeida2011there}.
+또한 Silhouette 점수는 수학적인 척도일 뿐, 사람이 느끼는 군집화 품질을 잘 반영하지는 못한다 \citep{newman2010evaluating}.
+그렇기 때문에 문서 군집화 과정에서 적절한 군집의 개수를 정의할 수 있는 새로운 방법이 연구되어야 한다.
+
+둘째로 k-means 알고리즘은 클래스의 크기가 서로 다르거나 각 클래스 별 문서의 개수가 다르더라도 각 군집의 크기가 비슷해지는 uniform effect \citep{xiong2008k} 가 발생하며, 이로 인하여 크기가 작은 클래스가 독립된 군집으로 학습이 되지 않는 문제가 존재한다.
+이들은 다른 군집에 아웃라이어로 포함되는데, 제안된 키워드 추출 방법은 군집을 구분할 수 있는 단어를 키워드로 선택하기 때문에 크기가 작은 클래스로부터 추출된 단어에 의하여 잘못된 문서 요약 결과가 제공될 수 있다.
+이를 해결하기 위해서는 클래스의 크기와 문서 개수에 영향을 적게 받는 문서 군집화 방법이 연구되어야 한다.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\section{결론} \label{conclusion}
+
 \vspace{3cm}
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage

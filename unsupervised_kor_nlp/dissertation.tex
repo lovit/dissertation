@@ -89,43 +89,29 @@ Unsupervised Korean Tokenizer and Extractive Document Summarization to Solve Out
 비지도기반 방법은 지도기반 방법이 이용하지 않는 다른 정보를 이용하기 때문에 이들은 상호보완적으로 이용가능하다.
 이 논문에서 제안하는 비지도기반 자연어처리 방법은 지도기반 방법보다 좋거나 비슷한 성능을 보임을 확인하였으며, 이는 두 접근 방법을 상호 보완적으로 이용하여 성능이 향상될 가능성이 있음을 보여준다.
 
-Natural language processing is a field made up of tasks that convert human language into computer-usable information or solve problems  using it.
-Tokenization is the task that recognizes words or morphemes in the given sentences, the results of tokenization is used as input of other natural language processing tasks.
-Therefore the poor quality of tokenization degrades the performance of other natural language processing tasks that use the results of tokenizer.
+Natural language processing is interested in converting a human language into computer-usable information to solve real problems.
+Among its various sub-tasks, tokenization is a fundamental data pre-processing task that aims to detect words or morphemes from its input sentence.
+Therefore, ineffective tokenization degrades the quality of other subsequent natural language processing tasks such as document summarization, in which documents are condensed into several key words or sentences.
 
-Document summarization is another task that summarizes the contents of a set of documents through keywords or key sentences, and it can be used to facilitate searching for large sets of documents or to index documents.
+All of these various natural language processing tasks share common intrinsic challenges such as out-of-vocabulary problem, lack of labeled training data and inevitable grammatical or spelling errors within the input texts.
+Among these various issues, grammatical or spelling errors are especially fatal for natural language processing for Korean.
+As the readability of the Korean texts are not significantly affected by these errors, these errors are simply overlooked in the training data, thereby causing tokenization to be increasingly difficult.
+Furthermore, these overlooked grammatical or spelling errors are one of the main reasons behind the out-of-vocabulary problem in Korean.
+Unfortunately, there is simply not enough training data to resolve these errors.
 
-However, this natural language processing task has the following difficulties.
-First, we encounter the problem of unregistered words that do not properly recognize words that do not appear in the learning data, and we call that out-of-vocabulary problem.
-Second, it is difficult to prepare training data for each task.
-Third, especially, there is a grammar and a spelling error in the text in Korean.
-Korean has various errors in text data because readability is not deteriorated even if some spelling errors exist.
-And it makes more difficult to recognize words correctly.
-These difficulties are associated with each other.
-Errors in the data cause an out-of-vocabulary problem, and there is no training data to reduce the errors.
-The above difficulties also occur in all other natural language processing tasks including document summarizations.
+In this paper, I propose various unsupervised Korean natural language processing methods to overcome these issues.
+Due to its unsupervised nature, it can be easily applied to various domains that lack labeled training data.
+Instead of relying on labeled data, I utilize the structures of Eojeol, a basic unit of a Korean word, as a prior knowledge for capturing the patterns in the Korean language.
 
-In this paper, I have proposed unsupervised Korean natural language processing methods to solve the difficults.
-Because unsupervised methods rarely depend on training data, it is easy to apply tasks of various domains.
-Also, in this paper, I have proposed structure of Eojeol, a word in Korean that used in unsupervised natural language processing tasks.
-The structure of Korean helps unsupervised algorithm to learn information efficiently by acting as a prior knowledge.
+Based on dividing Eojeol into a L + [R] structure, I propose four new unsupervised natural language processing methods for Korean. 
+To overcome the out-of-vocabulary problem, I create two Eojeol based unsupervised Korean tokenizers that not only outperforms Word Piece Model but also performs at a similar level as supervised Korean tokenizers that are trained on labeled datasets and dictionaries.
+Furthermore, I devise a novel noun extraction method that is superior than the trained Korean morpheme analyzers.
+Beside these pre-processing tasks, I also propose key words and sentences selection method that removes redundant sentences and summarizes a set of Korean documents without relying on any tokenizer.
+For summarizing a document set that consists of documents with various topics, I additionally propose an improved document clustering method and effective cluster labeling method. Not only can our improved clustering method be applied to different languages, it is also up to several thousand times than existing k-means clustering algorithm during initialization. 
 
-In this paper, I have proposed L + [R], a structure of Eojeol and four unsupervised natural language processing methods using it.
-In order to solve the out of vocabulary problem, I have proposed two unsupervised Korean tokenizers which has better performance than Word Piece Model using any linguistic information.
-Additionally, the tokenizers show better or similar performance of recognizing words with supervised Korean tokenizers that uses training data and word dictionary.
-Second, I have proposed noun extraction, and it also shows better ability of recognizing nouns than that of trained Korean morpheme analyzers.
-Third, I have proposed a seiection methods of keywords and key sentences in order to summarize a set of Korean documents consisting of a single topic.
-This method does not depend on the tokenizer and it extracts words itself.
-Also, the proposed method have ability to select key sentences while eliminating redundant sentences.
-Fourth, to summarize the document set consisting of various topics I have proposed improved document clustering method and effcient keyword extraction method based on clustering result.
-The proposed clustering - based document summarization method can be used regardless of language.
-The proposed method shows several hundreds to several thousand times faster initialization speed than the existing k-means algorithm, and extracts keywords relevants to cluster summarization.
-
-Many tasks in natural language processing use supervised machine learning algorithms.
-Unsupervised methods can be complementary because they use other information that supervised methods do not use.
-The proposed unsupervised natural language processing method shows better or similar performance than the supervised ones.
-This means that there is a possibility that the performance can be improved by using complementary two approaches.
-This paper suggests unsupervised methods that can make it possible.
+Supervised machine learning approaches are inevitable in natural language processing.
+However, unsupervised methods offer additional insight into Korean language that supervised methods fail to capture.
+As our unsupervised methods perform at a similar level as their supervised counterparts, integrating both approaches will provide unprecedented improvement in the world of Korean natural language processing.
 \end{abstract}
 
 \smallskip
@@ -2788,7 +2774,45 @@ Silhouette 점수는 군집의 개수를 결정하는데 이용할 수 있는 �
 \newpage
 \section{결론} \label{conclusion}
 
-또한 비지도기반 방법은 학습데이터에 대한 의존성이 적기 때문에 독립적으로 학습하는 모델로 발전할 가능성이 크다.
+인간의 언어를 이해하고 처리할 수 있는 인공지능은 오래전부터 연구되어 왔다.
+
+자연어처리는 이러한 과업들로 이뤄져 있다.
+
+토크나이저는 인간의 언어를 컴퓨터가 이해할 수 있는 단위로 표현하는 첫번째 작업이다.
+이 작업은 인간의 언어와 다른 자연어처리 과업들을 이어주는 교두보 역할을 한다.
+
+그러나 토크나이저를 포함한 많은 자연어처리 문제에서는 미등록단어 문제, 데이터 부족, 오류에 의하여 어려움을 겪는다.
+
+이들을 해결하기 위해서 지도기반 방법이 이용될 수도 있으나, 다양한 문제에 공통적으로 적용할 수 있는 모델을 만들기는 어렵다.
+지도기반 방법은 학습데이터와 알고리즘의 작동 방식에 의하여 풀 수 있는 문제의 범위에 한계가 있다.
+
+비지도기반 방법은 문제의 범위를 조금 더 넓히는 접근법이다.
+학습데이터에 대한 의존성이 적기 때문에 다양한 도메인의 데이터에 적응하며 자연어처리 과업의 해를 찾는다.
+
+그렇기 때문에 비지도기반으로 자연어처리 문제를 해결하려는 연구가 발전되어야 한다.
+
+
+이 논문에서는 토크나이징 과업과 추출 기반 문서 요약 방법에 이용할 수 있는 네 가지 방법을 제안하였다.
+
+첫째는
+
+둘째는
+
+셋째는
+
+넷째는
+
+각각의 방법들은 비지도기반 방식만으로 작동하면서도 학습데이터를 이용하는 모델과 비슷하거나 더 좋은 성능을 보이기도 하였다.
+
+하지만 제안된 방법들은 공통적으로 지도기반 방식과 상호 보완적으로 이용되는 방법에 대해서는 고민하지 않았다.
+
+다음의 연구 주제는 제안된 방법과 지도기반 방법의 융합이다.
+
+요약 기반 문서 요약 과업에서도 기준점이 필요하다. 좋은 품질의 키워드나 핵심 문장 집합은 요약 기반 방법들에도 기준점이 될 수 있다.
+
+토크나이저 역시 지도 기반 방법이 모델의 초기 학습의 역할을 하며, 여러 비지도기반 문제들을 해결하며 미등록단어 문제나 오류의 처리 방법을 스스로 학습하는 모델을 만들 수 있을 것이라 기대한다.
+
+
 
 
 \vspace{3cm}

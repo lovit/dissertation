@@ -58,10 +58,130 @@
 \maketitle
 \smallskip
 
+\section{서론}
+\begin{enumerate}
+\item \textbf{변수 정의가 되지 않은 부분이 많다. 전반적으로 변수 정의를 명확히 하고 내용을 시작하도록 수정해야 한다.}
+
+Answer
+
+\item \textbf{논문의 1장에서도 관련 연구에 대한 간략한 요약이 포함되어 있다. 1장과 2장을 합치는 것이 어떠한가}
+
+Answer
+
+
+\item \textbf{용어 중 어떤 것은 번역이 되어 있고, 어떤 것은 번역이 되지 않았다. 이에 대한 통일이 필요하다.}
+
+Answer
+
+\item \textbf{LDA 처럼 두 가지의 의미를 지닐 수 있는 약어의 경우, 전체 이름을 적는 것이 오히려 명료하다.}
+
+Answer
+
+\item \textbf{각 장의 이름에 어떤 것은 이름이 있고 (예: KR-WordRank), 어떤 것은 이름이 없다. 이를 통일하라.}
+
+Answer
+
+
+\item \textbf{아직 문서 군집화 관련 논문이 accepted 가 아니기 때문에 안전하게 time series segmentation 논문에 기반한 챕터를 추가하}
+
+Answer
+
+
+\end{enumerate}
+
+
+
+\section{관련 연구}
+\begin{enumerate}
+\item \textbf{Sequential labeling 은 논문에서 제안하는 방법에 이용되고 있지는 않다. 그렇기 때문에 이 부분이 관련 연구로 포함되는 것이 적절한지 재고해야 한다. 한편, 토크나이저의 분야에서는 알아야 하는 관련 연구이기 때문에 정리를 하는 것도 의미가 있다. 두 의견을 고려하여 sequential labeling 부분을 어떻게 할 것인지 판단하라.}
+
+Answer
+
+\end{enumerate}
+
+
+
+\section{Cohesion + Unsupervised Tokenizer}
+\begin{enumerate}
+\item \textbf{성능 평가 1의 단어 추출 재현율에서 Cohesion 과 Cohesion + Branching Entropy 간에 성능 차이가 나는 이유에 대하여 기술}
+
+Answer
+
+\end{enumerate}
+
+
+
+\section{명사 추출기}
+\begin{enumerate}
+\item \textbf{나무위키와 네이버 한국어 사전을 이용한 뉴스 데이터에서의 명사 인식 능력의 재현율 (recall) 이 낮은 이유는 무엇인가?}
+
+나무 위키와 네이버 한국어 사전에 등재된 명사는 뉴스에 등장한 명사 외에도 다른 도메인의 명사를 모두 포함한다.
+재현율은 이 모든 단어들 중에서 명사 추출기에 의하여 인식된 단어의 비율이기 때문에 뉴스 문서에 등장하지 않은 단어에 의하여 평균적으로 낮은 재현율을 보인다. 
+이에 대한 내용을 심사 발표에서는 언급하지 않았지만, 논문에서 설명하였다.
+
+
+\item \textbf{발표 자료에 있는 pseudo code 가 논문에는 없다. 논문에 이 부분을 추가하라.}
+
+Answer
+
+\end{enumerate}
+
+
+\section{KR-WordRank}
+\begin{enumerate}
+\item \textbf{Summarization 을 위한 데이터셋으로 영화평이 적합한 데이터인가?}
+
+Answer
+
+\item \textbf{각 영화별로 수집된 영화평 데이터는 하나의 영화평이 하나의 문서로 오인될 수 있다. 여러 개의 영화평이 합쳐진 가상의 문서임을 설명할 필요가 있다.}
+
+Answer
+
+\item \textbf{핵심 문장이 대표성을 보이는지 확인하기 위하여 선택된 문장수 (선택된 문장의 단어수) / 전체 문장수 (전체 문장의 단어 수) 를 확인할 필요가 있다}
+
+Answer
+
+\item \textbf{TextRank 는 오래 전에 제안된 알고리즘임에도 불구하고 해당 논문에서는 이와 성능을 비교하였다. 최근의 연구와 왜 비교하지 않았는가? 혹은 TextRank 를 이용해야 한다면 그 이유를 명시하라.}
+
+Answer
+
+
+\end{enumerate}
+
+
+\section{Clustering based keyword extraction}
+\begin{enumerate}
+\item \textbf{제목에서 다주제 문서 집합 요약이라 명하였는데, 이 때 기대하는 것은 요약문이다. 제목의 변경 혹은 핵심 문장 추출 과정까지 이어져 설명하는 것이 적절하다}
+
+Answer
+
+\item \textbf{주어진 문서가 다주제인지 단일 주제인지 어떻게 판단이 가능한가? 5 장과 6 장 사이에 이에 대한 내용이 추가되어야 한다}
+
+Answer
+
+
+\item \textbf{k-means++ 은 고차원에서 잘 작동하지 않는다고 표현하였는데, 그럼에도 제안하는 initializer 와 k-means++ 를 비교하는 것이 적절한가? 또한 k-means++ 은 Euclidean 에서 정의되는 것으로 알고 있는데, Euclidean 과 Cosine 을 비교하는 것이 적절한가?}
+
+k-means++ 이 이용하는 거리 척도에는 제한이 없으며, 논문의 실험에서는 k-means++ 과 제안한 initializer  모두 Cosine distance 을 이용하였다.
+k-means++ 이 잘 작동하지 않는다는 의미는 효율성의 측면에서 비효율적이라는 의미이며, k-means++ 도 이미 선택된 initial points 와 가까운 점을 추가 initial points 로 선택하지 않는 능력이 있다.
+단지, 이를 위하여 지나치게 불필요한 계산을 많이 하고 있을 뿐이다.
+논문에 이에 대한 내용이 정확히 기술되지 않았기 때문에 이 내용을 추가하였다 (예정).
+
+
+\item \textbf{IMDb 의 실험에서 몇 개의 문서를 1000 개의 군집으로 군집화 하였는가? 이에 대한 내용이 기술되어야 한다}
+
+해당 장의 실험 부분에서 데이터 별 문서와 단어의 개수가 명시되어 있다.
+
+\end{enumerate}
+
+
+\section{결론}
 \begin{enumerate}
 \item \textbf{Comment}
 
 Answer
 
 \end{enumerate}
+
+
 \end{document}

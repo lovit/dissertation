@@ -869,7 +869,7 @@ WPM 은 Byte-Pair Encoding 방법을 이용하여 데이터에서 자주 등장�
 WPM 에서의 단어 점수는 부분단어의 빈도수로 정의되기 때문에 교착어인 한국어에서는 단어가 아닌 어절 기준으로 문장을 분해한다.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{제안하는 방법} \label{word_extraction_proposed}
+\section{비지도기반 한국어 단어 추출 및 이를 이용한 토크나나이저} \label{word_extraction_proposed}
 
 \subsection{한국어 어절의 구조 : L + [R]} \label{lrstructure}
 
@@ -1223,7 +1223,7 @@ WPM 은 유닛의 개수를 증가하면 새로운 단어를 유닛으로 추가
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\chapter{어절 구조를 이용한 통계 기반 명사 추출} \label{noun_extraction}
+\chapter{한국어 어절 구조를 이용한 통계 기반 명사 추출} \label{noun_extraction}
 
 \section{서론}
 
@@ -1319,7 +1319,7 @@ FastText \cite{bojanowski2017enriching} 는 토크나이저를 이용하지 않�
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{제안하는 방법}
+\section{한국어 어절의 L + [R] 구조를 이용한 명사 추출}
 
 주어진 문서 집합에서 어절의 구조적 특징과 통계를 이용하여 명사를 추출하는 알고리즘을 제안한다.
 이는 수작업으로 명사 사전을 구축하는 비용을 줄여줄 뿐 아니라, 수작업에 의하여 놓치기 쉬운 단어들도 사전에 포함할 수 있다는 장점이 있다.
@@ -1327,7 +1327,7 @@ FastText \cite{bojanowski2017enriching} 는 토크나이저를 이용하지 않�
 하지만 단어 추출을 위해서는 어절 구조를 단순한 구조로 정의해야 한다.
 이를 위하여 단어 추출을 위한 단순화된 한국어 어절 구조를 제안하고, 이 구조를 이용한 명사 추출 방법을 설명한다.
 
-\subsection{L-R 그래프를 이용한 명사 추출기}
+\subsection{L-R 그래프를 이용한 명사 추출}
 
 제안하는 명사 추출 방법은 한국어 어절의 L + [R] 구조를 이용한다.
 명사는 의미를 지니기 때문에 L 에 해당하며, R 로는 조사와 그 외의 복합 형태소가 등장한다.
@@ -1431,6 +1431,40 @@ L 의 명사 판별에 이용하는 판별기는 세종 말뭉치를 이용하�
 하지만 분석 목적에 따라서는 '유엔안전보장이사회'처럼 복합명사를 그대로 이용하기도 한다.
 그러므로 마지막 종류의 후처리는 사용자의 선택에 의하여 실행한다.
 
+제안하는 명사 추출 방법의 의사코드는 \ref{fig:pseudocode_noun} 과 같다.
+제안된 방법은 사용자에 의하여 정의된 명사 점수의 최소값 $t$, $l$ 과 $r$ 의 최소 빈도수 $c$, 그리고 문장열로 구성된 $D$ 가 주어졌을 때, 세 가지 과정을 거쳐 $D$ 로부터 명사를 추출한다.
+첫째, $D$ 와 $c$ 를 이용하여 L-R 그래프를 생성한다.
+둘째, 길이가 긴 $l$ 부터 명사 점수를 계산하여 그 점수가 $t$ 보다 클 경우 이를 추출된 명사 집합 $N$ 에 추가한다.
+그 뒤, $l$ 이 포함된 어절로부터 만들어진 모든 ($l^*, r^*$) 을 L-R 그래프에서 제거한다.
+셋째, 후처리 과정을 거쳐 잘못 추출된 명사들을 제거한다.
+
+\begin{figure}[H]
+\renewcommand{\arraystretch}{0.7}
+\centering
+\begin{tabular}{|l|}
+\hline
+\begin{tabular}[c]{@{}l@{}}
+$D$: dataset\\
+$t$: threshold of noun score\\
+$c$: minimum count of word\\
+\\
+\textbf{def extract\_nouns} ($D, t, c$):\\
+\quad $G = ((L,R), E) \leftarrow$ construct L-R graph ($D, c$)\\
+\quad $N$ = { }
+\quad \textbf{for} $l$ in reverse sort by length ($L$):\\
+\quad \quad $s \leftarrow$ noun score ($l$) \\
+\quad \quad if $s \ge t$: \\
+\quad \quad \quad remove ($l^*, r^*$) from $G$ such as $l$ is left substring of $l^* + r^*$ \\
+\quad \quad $N \leftarrow L \cup \{l\}$ \\
+\quad $N \leftarrow$ postprocessing ($N$) \\
+\quad \textbf{return} $N$
+
+\end{tabular} \\ \hline
+\end{tabular}
+\caption{제안하는 명사 추출 방법의 의사 코드}
+\label{fig:pseudocode_noun}
+\end{figure}
+
 \subsection{세종 말뭉치를 이용한 명사 판별 분류기 학습}
 
 세종 말뭉치는 L-R 그래프에서 L 이 명사인지를 판단하는 판별기를 학습하는데 이용될 수 있다.
@@ -1526,42 +1560,6 @@ L1 정규화 모델은 R 의 일부를 이용하지 않기 때문에 본 실험�
 하지만 선형 커널을 이용하는 SVM-L 은 내적을 기반으로 작동하기 때문에 안정적인 성능을 보였으며, Support Vectors 의 개수 역시 선형 커널을 이용할 때에는 3 $\sim$ 6 \% 이지만, RBF 커널을 이용하면 20 $\sim$ 31 \%  을 보였다.
 이 결과로부터 내적 혹은 확률을 기반으로 작동하는 분류 모델이라면 그 종류에 관계없이 안정적인 성능을 보임을 알 수 있고, 모델의 해석력을 위하여 Logistic Regression 모형을 이용하였다.
 세종 말뭉치를 이용한 판별기는 한 번 학습한 뒤 명사를 추출할 때마다 재사용 할 수 있다.
-
-\subsection{제안하는 방법의 의사 코드}
-
-제안하는 명사 추출 방법의 의사코드는 \ref{fig:pseudocode_noun} 과 같다.
-제안된 방법은 사용자에 의하여 정의된 명사 점수의 최소값 $t$, $l$ 과 $r$ 의 최소 빈도수 $c$, 그리고 문장열로 구성된 $D$ 가 주어졌을 때, 세 가지 과정을 거쳐 $D$ 로부터 명사를 추출한다.
-첫째, $D$ 와 $c$ 를 이용하여 L-R 그래프를 생성한다.
-둘째, 길이가 긴 $l$ 부터 명사 점수를 계산하여 그 점수가 $t$ 보다 클 경우 이를 추출된 명사 집합 $N$ 에 추가한다.
-그 뒤, $l$ 이 포함된 어절로부터 만들어진 모든 ($l^*, r^*$) 을 L-R 그래프에서 제거한다.
-셋째, 후처리 과정을 거쳐 잘못 추출된 명사들을 제거한다.
-
-\begin{figure}[H]
-\renewcommand{\arraystretch}{0.7}
-\centering
-\begin{tabular}{|l|}
-\hline
-\begin{tabular}[c]{@{}l@{}}
-$D$: dataset\\
-$t$: threshold of noun score\\
-$c$: minimum count of word\\
-\\
-\textbf{def extract\_nouns} ($D, t, c$):\\
-\quad $G = ((L,R), E) \leftarrow$ construct L-R graph ($D, c$)\\
-\quad $N$ = { }
-\quad \textbf{for} $l$ in reverse sort by length ($L$):\\
-\quad \quad $s \leftarrow$ noun score ($l$) \\
-\quad \quad if $s \ge t$: \\
-\quad \quad \quad remove ($l^*, r^*$) from $G$ such as $l$ is left substring of $l^* + r^*$ \\
-\quad \quad $N \leftarrow L \cup \{l\}$ \\
-\quad $N \leftarrow$ postprocessing ($N$) \\
-\quad \textbf{return} $N$
-
-\end{tabular} \\ \hline
-\end{tabular}
-\caption{제안하는 명사 추출 방법의 의사 코드}
-\label{fig:pseudocode_noun}
-\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{성능 평가}
@@ -2067,9 +2065,9 @@ TextRank 에서 형태가 매우 유사한 두 문장 중 하나의 문장의 �
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{제안하는 방법: KR-WordRank}
+\section{토크나이저를 이용하지 않는 키워드 및 핵심 문장 추출}
 
-\subsection{토크나이저를 이용하지 않는 한국어 키워드 추출 방법}
+\subsection{부분어절 그래프와 그래프 랭킹 알고리즘을 이용한 키워드 추출}
 
 kR-WordRank 는 위 세가지 문제를 해결하기 위하여 제안된 그래프 랭킹 기반 한국어 키워드 추출 방법으로, 주어진 데이터로부터 직접 단어를 추출하는 능력이 있기 때문에 미등록단어 문제에서 자유롭다 \cite{kim2014kr}.
 
@@ -2352,7 +2350,7 @@ LexRank 와 TextRank 는 문장 간 유사도가 다른 방법이기 때문에 �
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
-\chapter{문서 군집화 알고리즘 및 군집화 레이블링을 이용한 다주제 문서 집합 요약} \label{improved_kmeans}
+\chapter{다주제 문서 집합 요약을 위한 문서 군집화 알고리즘 및 군집 별 키워드 추출} \label{improved_kmeans}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{개요}
@@ -2496,14 +2494,14 @@ k-means++ 은 서로 떨어진 점들을 초기 군집 중심값으로 선택할
 \end{table}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\section{제안하는 방법: 문서 군집화를 위하여 개선된 Spherical k-means}
+\section{문서 군집화를 위하여 개선된 Spherical k-means}
 
 문서 군집화와 문서 요약을 위하여 개선된 spherical k-means 알고리즘은 두 가지 제안하는 방법이 추가되었다.
 첫째, 코싸인 거리 척도를 이용하는 고차원 벡터 공간에서 효율적으로 작동하는 초기화 방법을 이용한다.
 둘째, k-means 의 학습 결과인 군집 중심값을 이용하여 군집 별 키워드를 추출한다.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{문서 군집화를 위한 효율적인 Spherical k-means 초기화}
+\subsection{효율적인 Spherical k-means 초기화}
 
 k-means 의 초기 군집 중심값이 그림 \ref{fig:initialization_good_bad} (b) 처럼 선택되면 불안정한 군집화 결과가 학습될 수 있다.
 이를 개선하기 위하여 k-means++ 가 제안되었지만, $O(nk)$ 의 초기화 비용을 요구하며 고차원 벡터 공간에서는 효율적으로 작동하지 않는다.
@@ -2548,7 +2546,7 @@ $\alpha$ 는 사용자에 의하여 설정되는 패러메터이며, 실험을 �
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{중심 벡터를 이용한 문서 군집 별 키워드 추출 방법}
+\subsection{군집 중심값을 이용한 문서 군집 별 키워드 추출 방법}
 
 문서 군집화 과정은 각 문서가 속한 클래스의 정보가 존재하지 않는 상황에서 이용되기 때문에 군집 별 키워드에 대한 정답 데이터도 존재하지 않는 경우가 많다.
 각 군집에 \ref{summarize_single_topic} 장에서 제안된 방법이나 TextRank 와 비지도학습 문서 요약 방법을 적용할 수도 있으나, 이는 추가적인 모델 학습을 요구한다.
@@ -2573,8 +2571,8 @@ s(w, C_i) = \frac{p_i (w)}{p_i (w) + p_{-i}(w)}
 그러나 빈도수가 매우 작은 단어는 한 군집에서만 등장하여 $s(w, C_i)$ 의 점수가 1 일 가능성이 높다.
 이를 방지하기 위하여 각 군집별로 $p_i (w)$ 기준 상위 $k_0$ 개의 단어를 키워드 후보로 선택한 뒤, $s(w, C_i)$ 기준 상위 $k_1$ 개의 단어를 키워드로 선택한다.
 선택된 키워드는 한 군집에서 자주 등장하는 단어임과 동시에 $C_i$ 에서 유독 등장하는 단어이다.
-각 문서가 Doc2Vec 과 같은 분산 표상 벡터로 표현된 경우에는 문서의 단어 빈도 벡터를 추가로 계산해야 하지만, 문서가 Bag-of-words model 로 표현된 경우에는 군집 중심 벡터가 $p_i (w)$ 로 이용될 수 있다.
-이 때는 다른 군집의 크기를 가중치로 이용하여 다른 군집 중심 벡터의 가중 평균을 $p_{-i}(w)$ 로 이용할 수 있다.
+각 문서가 Doc2Vec 과 같은 분산 표상 벡터로 표현된 경우에는 문서의 단어 빈도 벡터를 추가로 계산해야 하지만, 문서가 Bag-of-words model 로 표현된 경우에는 군집 중심값이 $p_i (w)$ 로 이용될 수 있다.
+이 때는 다른 군집의 크기를 가중치로 이용하여 다른 군집 중심 중심값의 가중 평균을 $p_{-i}(w)$ 로 이용할 수 있다.
 이 방법은 \cite{zhang2006keyword, onan2016ensemble} 처럼 정답 데이터를 필요로 하거나 새로운 모델을 학습하지 않고도 빠르게 키워드를 추출한다.
 
 
@@ -2645,7 +2643,7 @@ Yelp 리뷰 데이터는 사용자에 의하여 작성된 식당 리뷰와 평�
 \end{tabular}}
 \end{table}
 
-\subsection{제안된 초기화 방법의 성능 평가}
+\subsection{초기화 방법의 성능 평가}
 
 제안된 초기화 방법의 성능을 확인하기 위하여 초기화 계산 속도와 문서 군집화 품질을 확인하였다.
 
@@ -2742,7 +2740,7 @@ $k$ 다를 경우 각 군집화 품질 값의 경향이 달라지므로 같은 $
 \end{table}
 
 
-\subsection{제안된 문서 군집 별 키워드 추출 방법의 성능 평가}
+\subsection{문서 군집 별 키워드 추출 방법의 성능 평가}
 
 앞선 초기화 방법의 성능을 평가하기 위해서 모든 데이터에 동일한 $k$ 를 이용하여 문서 군집화를 수행하였다.
 하지만 IMDb 리뷰의 의미있는 군집화 결과를 학습하기 위해서 군집의 개수를 1,000 으로 설정하였다.

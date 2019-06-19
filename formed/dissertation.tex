@@ -626,6 +626,7 @@ Latent Dirichlet Allocation 는 Singular Vector Decomposition (SVD) 을 이용�
 \cite{bischof2012summarizing} 도 단어의 빈도수와 토픽 간 구분력을 모두 고려하는 FREX 라는 지표를 제안하였다.
 \cite{song2009topic} 은 토픽 내 단어 생성 확률과 토픽 별 생성 확률의 분산의 곱을 키워드 점수로 이용하였다.
 이 방법은 한 토픽에서 자주 등장하며, 여러 토픽에서 다른 분포로 등장하는 단어를 키워드로 선택한다.
+\cite{lee2008news} 는 뉴스 문서의 카테고리 정보를 토픽으로 이용하였는데, 각 카테고리 별 단어 빈도의 순위의 편차로 단어의 빈도수를 나누는 키워드 점수를 제안하였다.
 이는 문서의 클래스를 토픽으로 고려하면 문서 분류를 위한 변수 선택법들과도 비슷하다 \cite{largeron2011entropy, popescul2000automatic}.
 
 하지만 상반되는 두 가지 기준을 동시에 고려하여 하나의 지표로 표현할 경우, 왜곡된 해석을 할 가능성이 높다 \cite{chuang2012interpretation}. 
@@ -2496,6 +2497,37 @@ k-means++ 은 서로 떨어진 점들을 초기 군집 중심값으로 선택할
 첫째, 코싸인 거리 척도를 이용하는 고차원 벡터 공간에서 효율적으로 작동하는 초기화 방법을 이용한다.
 둘째, k-means 의 학습 결과인 군집 중심값을 이용하여 군집 별 키워드를 추출한다.
 
+그림 \ref{fig:pseudocode_kmeans} 은 제안하는 문서 군집화 알고리즘의 의사 코드이다.
+제안하는 방법은 대량의 문서 군집화를 위한 빠른 초기화 알고리즘과 군집 대표 벡터를 이용한 군집 레이블링 기능이 포함되어 있다.
+사용자는 $\alpha$ 와 $t_{init}$ 를 통하여 초기화에 이용할 점들의 개수와 초기화된 점들 간의 거리를 조절하며 $k_0$ 와 $k_1$ 을 이용하여 군집 별 키워드 및 후보 단어의 개수를 조절한다.
+
+\begin{figure}[H]
+\renewcommand{\arraystretch}{0.7}
+\centering
+\begin{tabular}{|l|}
+\hline
+\begin{tabular}[c]{@{}l@{}}
+$D$: dataset\\
+$k$: a number of clusters\\
+$t_{init}$: minimum distance for initializer\\
+$k_0$: number of keyword candidates\\
+$k_1$: number of selected keywords\\
+\\
+\textbf{def improved\_kmeans} ($D, k, \alpha, t_{init}, k_0, k_1$):\\
+\quad $C$ $\leftarrow$ Initialize $k$ centroids with sparse initializer ($D, k, \alpha, t_{init}$)\\
+\quad $L$ $\leftarrow$ Assign all points to its closest centroid\\
+\quad \textbf{while} (not converged):\\
+\quad \quad $C$ $\leftarrow$ Update centroid. Averaging their belonging points \\
+\quad \quad $L$ $\leftarrow$ Reassign all the points to its closest centroid\\
+\quad $Z$ $\leftarrow$ cluster labeling ($C, L, k_0, k_1$)\\
+\quad \textbf{return} $C$, $L$, $Z$
+
+\end{tabular} \\ \hline
+\end{tabular}
+\caption{개선된 Spherical k-means 의 의사 코드}
+\label{fig:pseudocode_kmeans}
+\end{figure}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{효율적인 Spherical k-means 초기화}
 
@@ -2570,41 +2602,6 @@ s(w, C_i) = \frac{p_i (w)}{p_i (w) + p_{-i}(w)}
 각 문서가 Doc2Vec 과 같은 분산 표상 벡터로 표현된 경우에는 문서의 단어 빈도 벡터를 추가로 계산해야 하지만, 문서가 Bag-of-words model 로 표현된 경우에는 군집 중심값이 $p_i (w)$ 로 이용될 수 있다.
 이 때는 다른 군집의 크기를 가중치로 이용하여 다른 군집 중심 중심값의 가중 평균을 $p_{-i}(w)$ 로 이용할 수 있다.
 이 방법은 \cite{zhang2006keyword, onan2016ensemble} 처럼 정답 데이터를 필요로 하거나 새로운 모델을 학습하지 않고도 빠르게 키워드를 추출한다.
-
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\subsection{제안하는 방법의 의사 코드}
-
-그림 \ref{fig:pseudocode_kmeans} 은 제안하는 문서 군집화 알고리즘의 의사 코드이다.
-제안하는 방법은 대량의 문서 군집화를 위한 빠른 초기화 알고리즘과 군집 대표 벡터를 이용한 군집 레이블링 기능이 포함되어 있다.
-사용자는 $\alpha$ 와 $t_{init}$ 를 통하여 초기화에 이용할 점들의 개수와 초기화된 점들 간의 거리를 조절하며 $k_0$ 와 $k_1$ 을 이용하여 군집 별 키워드 및 후보 단어의 개수를 조절한다.
-
-\begin{figure}[H]
-\renewcommand{\arraystretch}{0.7}
-\centering
-\begin{tabular}{|l|}
-\hline
-\begin{tabular}[c]{@{}l@{}}
-$D$: dataset\\
-$k$: a number of clusters\\
-$t_{init}$: minimum distance for initializer\\
-$k_0$: number of keyword candidates\\
-$k_1$: number of selected keywords\\
-\\
-\textbf{def improved\_kmeans} ($D, k, \alpha, t_{init}, k_0, k_1$):\\
-\quad $C$ $\leftarrow$ Initialize $k$ centroids with sparse initializer ($D, k, \alpha, t_{init}$)\\
-\quad $L$ $\leftarrow$ Assign all points to its closest centroid\\
-\quad \textbf{while} (not converged):\\
-\quad \quad $C$ $\leftarrow$ Update centroid. Averaging their belonging points \\
-\quad \quad $L$ $\leftarrow$ Reassign all the points to its closest centroid\\
-\quad $Z$ $\leftarrow$ cluster labeling ($C, L, k_0, k_1$)\\
-\quad \textbf{return} $C$, $L$, $Z$
-
-\end{tabular} \\ \hline
-\end{tabular}
-\caption{개선된 Spherical k-means 의 의사 코드}
-\label{fig:pseudocode_kmeans}
-\end{figure}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

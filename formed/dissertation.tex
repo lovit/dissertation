@@ -143,7 +143,7 @@
 또한 한국어의 구조적 특징을 이용한 방법들을 제안한다.
 한국어의 구조적 특징은 비지도학습 방법의 사전 지식 역할을 하여 효율적으로 정보를 학습할 수 있도록 도와준다.
 
-이 논문에서는 비지도학습 한국어 자연어처리에 적합한 어절 구조인 L + [R] 와 이를 이용하는 네 가지 비지도학습 자연어처리 방법을 제안한다.
+이 논문에서는 비지도학습 한국어 자연어처리에 적합한 어절 구조인 L + [R] 와 이를 이용하는 다섯 가지 비지도학습 자연어처리 방법을 제안한다.
 첫째, 미등록단어 문제를 해결하기 위하여 제안된 비지도학습 토크나이저는 한국어 어절의 구조 정보를 이용하여 Word Piece Model 보다 좋은 성능을 보였으며, 학습데이터를 토크나이저도와도 비슷한 수준의 단어 인식 성능을 보였다.
 둘째, 통계 기반으로 명사를 추출하는 방법을 제안하였으며 이는 학습 말뭉치와 단어 사전을 이용하는 형태소 분석기보다도 뛰어난 명사 인식 능력을 보였다.
 셋째, 단어와 키워드를 동시에 추출하여 단일한 주제로 이뤄진 문서 집합을 요약하는 방법을 제안하였다.
@@ -151,7 +151,9 @@
 넷째, 문서 군집화와 군집 별 키워드를 추출하는 방법을 통하여 다양한 주제로 구성된 문서 집합을 요약하는 방법을 제안하였다.
 이 방법은 효율적인 문서 군집화를 위하여 개선된 초기화 알고리즘과 군집화 결과인 군집 중심값을 이용하여 각 군집을 구분할 수 있는 단어를 키워드로 선택한다.
 개선된 Spherical k-means 방법은 기존의 알고리즘보다 수천배 빠른 초기화 계산 속도를 보였으며, 군집 별 키워드를 통하여 손쉽게 문서 군집의 내용을 파악할 수 있었다.
-또한 제안된 문서 군집화 기반 키워드 추출 방법은 한국어가 아닌 다른 언어에도 적용될 수 있다.
+다섯째, 시계열 구간 구분 방법과 키워드, 핵심 문장 방법을 이용하여 뉴스와 같이 시계열 형식으로 발생하는 문서 집합을 주제에 따른 구간으로 구분한 뒤 이를 요약하는 방법을 제안한다.
+이 방법은 시간 별 문서 간의 거리 정보를 기반으로 트렌드가 변하는 지점을 구간의 경계로 탐색한 뒤, 이전 장에서 제안된 키워드 및 핵심 문장 추출 방법을 적용하여 각 구간의 문서 집합을 요약한다.
+제안된 문서 군집화 기반 키워드 추출 방법과 시계열 형식의 문서 집합 요약 방법은 한국어가 아닌 다른 언어에도 적용될 수 있다.
 
 자연어처리의 많은 과업들은 지도학습 머신러닝 알고리즘을 이용한다.
 비지도학습 방법은 지도학습 방법이 이용하지 않는 다른 정보를 이용하기 때문에 이들은 상호보완적으로 이용가능하다.
@@ -256,6 +258,9 @@
 
 \ref{improved_kmeans} 장에서는 다양한 주제로 구성된 문서 집합을 요약하기 위한 문서 군집화 기반 문서 요약 방법을 제안한다.
 효율적인 문서 군집화를 위하여 개선된 Spherical k-means 알고리즘을 제안하며, 추가적인 모델 학습 없이 군집화 결과만을 이용하여 군집 별 키워드를 추출할 수 있는 방법을 제안한다.
+
+\ref{timeseries_summarization} 장에서는 뉴스와 같이 시계열 형식으로 구성된 문서 집합을 요약하는 방법을 제안한다.
+시간 별 주제에 대한 정보가 없기 때문에 시간이 지남에 따라 문서 집합의 트렌드가 변하는 지점을 거리 기반으로 탐색하여 비슷한 주제의 구간을 구분한 뒤 각 구간의 문서 집합을 요약한다.
 
 \ref{introduction} 장에서는 위 과업을 해결하기 위하여 이용되는 관련 연구를 한국어의 구조와 단어 임베딩 기법, 순차적 판별 알고리즘, 추출 기반 문서 요약 기법순서로 정리하였다.
 
@@ -982,7 +987,7 @@ $w$: eojeol, separated by white space\\
 \quad \textbf{return} tokens \\
 \end{tabular} \\ \hline
 \end{tabular}
-\caption{L-Tokenizer 의사코드}
+\caption{L-Tokenizer 의사 코드}
 \label{fig:pseudocode_ltokenizer}
 \end{figure}
 
@@ -1011,7 +1016,7 @@ $w$: eojeol, separated by white space\\
 \quad \textbf{return} tokens
 \end{tabular} \\ \hline
 \end{tabular}
-\caption{Max Score Tokenizer 의사코드}
+\caption{Max Score Tokenizer 의사 코드}
 \label{fig:pseudocode_maxscoretokenizer}
 \end{figure}
 
@@ -1428,7 +1433,7 @@ L 의 명사 판별에 이용하는 판별기는 세종 말뭉치를 이용하�
 하지만 분석 목적에 따라서는 '유엔안전보장이사회'처럼 복합명사를 그대로 이용하기도 한다.
 그러므로 마지막 종류의 후처리는 사용자의 선택에 의하여 실행한다.
 
-제안하는 명사 추출 방법의 의사코드는 \ref{fig:pseudocode_noun} 과 같다.
+제안하는 명사 추출 방법의 의사 코드는 \ref{fig:pseudocode_noun} 과 같다.
 제안된 방법은 사용자에 의하여 정의된 명사 점수의 최소값 $t$, $l$ 과 $r$ 의 최소 빈도수 $c$, 그리고 문장열로 구성된 $D$ 가 주어졌을 때, 세 가지 과정을 거쳐 $D$ 로부터 명사를 추출한다.
 첫째, $D$ 와 $c$ 를 이용하여 L-R 그래프를 생성한다.
 둘째, 길이가 긴 $l$ 부터 명사 점수를 계산하여 그 점수가 $t$ 보다 클 경우 이를 추출된 명사 집합 $N$ 에 추가한다.
@@ -2106,14 +2111,14 @@ $L = [l_1, l_2, \dots, l_L]$ : L set \\
 $R = [r_1, r_2, \dots, r_k]$ : R set \\
 \\
 \textbf{def select\_keywords}($L, R_k$): \\
-\quad $KW$ = { } : 키워드 집합 \\
+\quad $KW$ = { } : keyword set \\
 \quad \textbf{For} $c$ in $L$: \\
 \quad \quad if $c$ is not form of $kw_{i} + r_j$: \\
 \quad \quad \quad $KW \leftarrow KW \cup {c}$ \\
 \quad \textbf{return} $KW$ \\
 \end{tabular} \\ \hline
 \end{tabular}
-\caption{KR-WordRank 키워드 필터링 함수}
+\caption{KR-WordRank 키워드 필터링 함수 의사 코드}
 \label{fig:krwordrank_filtering}
 \end{figure}
 
@@ -2156,10 +2161,10 @@ $KV$ : keyword vector \\
 $S$ : sentence vectors\\
 \\
 \textbf{def select\_keysentences}($S, KV, \sigma, k$): \\
-\quad $\sigma$ : 사용자에 의하여 지정된 핵심문장간 최소 거리 \\
-\quad $k$ : 핵심문장 개수
-\quad $KS$ = [ ] : 핵심문장 리스트 \\
-\quad $C$ = $dist$($KV, S$) : 핵심문장 비용\\
+\quad $\sigma$ : minimum distance between selected keysentences \\
+\quad $k$ : number of keysentences \\
+\quad $KS$ = [ ] : keysentence list \\
+\quad $C$ = $dist$($KV, S$) : initial keysentence score \\
 \quad \textbf{While} $\vert KS \vert < k$: \\
 \quad \quad $i \leftarrow \arg \min_C$ \\
 \quad \quad $KS \leftarrow KS + [S_i]$ \\
@@ -2167,7 +2172,7 @@ $S$ : sentence vectors\\
 \quad \textbf{return} $KS$
 \end{tabular} \\ \hline
 \end{tabular}
-\caption{KR-WordRank 핵심문장 필터링 함수}
+\caption{KR-WordRank 핵심문장 필터링 함수 의사 코드}
 \label{fig:krwordrank_sentence_filtering}
 \end{figure}
 
@@ -2416,7 +2421,7 @@ $k$: a number of clusters\\
 
 \end{tabular} \\ \hline
 \end{tabular}
-\caption{Lloyd k-means}
+\caption{Lloyd k-means 의 의사 코드}
 \label{fig:lloyd_kmeans}
 \end{figure}
 
@@ -2845,6 +2850,391 @@ Silhouette 점수는 군집의 개수를 결정하는데 이용할 수 있는 �
 이들은 다른 군집에 아웃라이어로 포함되는데, 제안된 키워드 추출 방법은 군집을 구분할 수 있는 단어를 키워드로 선택하기 때문에 크기가 작은 클래스로부터 추출된 단어에 의하여 잘못된 문서 요약 결과가 제공될 수 있다.
 이를 해결하기 위해서는 클래스의 크기와 문서 개수에 영향을 적게 받는 문서 군집화 방법이 연구되어야 한다.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+\chapter{시계열 형식의 뉴스 문서 집합 요약을 위한 거리 기반 유사 주제 구간 분리} \label{timeseries_summarization}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{개요}
+
+트위터나 뉴스와 같은 소셜 미디어에서 발생하는 문서들은 시간이 변함에 따라 문서 집합의 주제들이 달라진다.
+토픽 탐색 및 추적은 (Topic Detection and Tracking, TDT) 새롭게 발생하는 주제를 인지하거나 추적하는 자연어처리 과업이다 \cite{fiscus2002topic}.
+문서 집합을 시간의 변화를 기준으로 요약하면 문서 집합 전체의 변화에 대한 이해를 높일 수 있다.
+예를 들어 특정 질의어에 대한 소셜 미디어의 시간의 흐름에 따른 문서 집합을 요약 함으로써 해당 질의어에 대한 트렌드를 이해할 수 있다.
+
+문서 집합이 여러 주제의 문서들로 구성되어 있을 때에는 문서 집합을 주제 별로 나눈 뒤, 각 주제 별로 문서를 요약할 수 있다.
+이를 위하여 \ref{improved_kmeans} 장에서 문서 군집화와 군집 별 키워드 추출을 이용하는 방법을 제안하였다.
+문서의 작성자나 작성 시간과 같은 외부 정보가 함께 주어지는 경우들이 존재하며 이들은 비슷한 주제의 문서 집합을 탐색하는데 이용될 수 있다 \cite{liu2009topic, balasubramanyan2011block}.
+특히 문서의 생성 시간은 동일한 주제의 문서를 탐색하는데 유용하게 이용될 수 있는데, 트위터나 뉴스와 같은 소셜 미디어에서는 시간의 변화에 따라 큰 트렌드가 존재하며 \cite{diao2012finding} 비슷한 시간대에 생성된 문서들은 비슷한 주제들로 구성될 가능성이 높다 \cite{blei2006dynamic, alsumait2008line}.
+하지만 작성자나 시간과 단어처럼 서로 다른 정보로 구성된 데이터는 점들 간 거리를 정의하기 어렵기 때문에 군집화 알고리즘을 적용하기 어렵다 \cite{hennig2013find, browne2012model}.
+
+이러한 문제를 해결하기 위하여 Latent Dirichlet Allocation \cite{blei2003latent} 의 학습에 시간 정보를 함께 이용하는 방법들이 제안되었다 \cite{blei2006dynamic, wang2006topics, huang2017probabilistic}.
+문서 집합을 기간 별로 나눈 뒤 각 기간 별로 토픽 모델을 학습한 뒤 외부에서 정의된 질의어나 키워드를 중심으로 관련 주제의 문서 집합을 요약하는 방법들이 제안되었다.
+그러나 사용자에 의하여 나뉘어지는 기간은 토픽의 변화 정보를 반영하지 못하는 한계점이 있다.
+예를 들어 뉴스 문서의 경우 한 사건에 관련된 문서가 짧게는 하루 혹은 수 주에 걸쳐 발생되지만, 임의로 정해진 기간으로 문서 집합을 구분할 경우 동일한 주제의 문서 집합이 여러 개의 토픽으로 나뉘어 학습될 수 있다.
+또한 모든 문서를 이용하여 토픽 모델을 학습한 뒤 질의어를 중심으로 문서 집합을 요약할 경우, 특정 질의어에 대한 토픽이 제대로 학습되지 못할 가능성이 존재한다.
+질의어가 주어질 경우 시간의 흐름에 따라 발생하는 문서 집합은 많은 수의 문서로 구성된 큰 주제와 작은 수의 문서로 구성된 작은 주제들로 이뤄져 있는 경우가 많은데, 모든 문서를 이용하여 토픽 모델을 학습할 경우 질의어 외의 정보에 의하여 이러한 패턴이 제대로 학습되지 않을 수 있다.
+
+\ref{timeseries_summarization} 장에서는 특정 질의어에 대하여 시간에 따라 발생하는 문서 집합을 요약하는 방법을 제안한다.
+이 장에서는 한 질의어에 대하여 시간 별로 큰 주제가 존재하는 상황에서 큰 주제를 기준으로 문서 집합의 발생 기간을 나눈 뒤, 각 기간 별로 키워드와 핵심 문장을 추출하는 방법을 제안한다.
+큰 주제의 변화를 인식하기 위하여 시계열 구분 (time-series segmentation) 방법을 이용하며, 이는 \ref{improved_kmeans} 장에서의 군집으로 해석할 수 있다.
+그러므로 각 기간 별 문서 집합을 구분하는 키워드를 추출함으로써 해당 기간의 문서 집합의 주요 주제를 요약할 수 있다.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{관련 연구}
+
+Latent Dirichlet Allocation 은 문서 집합으로부터 Dirichlet 분포를 따르는 문서의 토픽 확률 벡터 $\alpha$ 와 토픽의 단어 확률 벡터 $\beta$ 를 학습한다.
+Latent Dirichlet Allocation 는 문서 집합을 구성하는 주제의 종류가 변하지 않는다고 가정하기 때문에 시간의 흐름에 따라 발생하는 모든 문서 집합에 동일한 토픽 - 단어 벡터를 이용하여 문서를 토픽 확률 벡터로 표현한다.
+그러나 기간에 따라 서로 다른 토픽이 발생하며, 이러한 특징을 반영하기 위하여 기간별로 문서 집합을 나눈 뒤 여러 개의 토픽 모델을 학습하는 방법이 제안되었다 \cite{blei2006dynamic, mei2007topic, alsumait2008line}.
+이와 같은 방법은 다음의 한계점을 지니는데, 첫째 인접한 기간의 토픽은 서로 비슷할 수 있으나 독립적인 토픽 모델들은 이러한 정보를 이용할 수 없다.
+둘째, Latent Dicichlet Allocation 은 모든 기간마다 사용자에 의하여 지정된 개수의 토픽이 존재한다고 가정한다. 
+데이터 기반으로 토픽의 개수를 추정하는 방법도 제안되었지만 \cite{wang2011online}, 토픽 별 분포가 불균형적이거나 토픽 별로 등장하는 단어가 명확히 구분되지 않는 상황에서는 좋지 못한 성능을 보인다.
+셋째, 적절한 기간을 나누는 기준이 없다.
+뉴스 문서의 경우 한 사건마다 하루 혹은 수주에 걸쳐 다양한 기간 동안 문서가 발생하기 때문에 임의로 기간을 정할 경우 한 토픽이 여러 개로 나뉘어지거나 여러 토픽들이 하나의 토픽으로 학습될 수 있다.
+
+이러한 단점을 해결하기 위하여 토픽 모델링 과정에서 시간에 대한 정보를 이용하기 위한 다양한 연구들이 제안되었다.
+discrete-time Dynamic Topic Model (dDTM) \cite{blei2006dynamic} 나 Online LDA \cite{alsumait2008line} 는 각 시점 $t$ 에 대한 $\alpha_t, \beta_t$ 가 이전 시점의 $\alpha_{t-1}, \beta_{t-1}$ 와 유사하도록 식 \ref{eq:dtm} 과 같은 제약조건을 추가하였다. 이 과정에서 $\beta_{t-1}$ 에 등장하지 않은 단어가 $t$ 시점에 등장할 때 이를 인식하지 못하는 미등록문제를 해결하는 연구도 제안되었다 \cite{zhai2013online}.
+
+\begin{equation}
+\label{eq:dtm}
+\beta_t \sim \mathcal{N}(\beta_{t-1}, \sigma^2 \mathit{I})
+\end{equation}
+
+토픽 개수가 지나치게 많거나 적으면 토픽 모델이 학습은 되었으나 실제로는 이용되지 않는 토픽들이 (junk topics) 다수 발생하여 해석을 어렵게 만들지만 \cite{alsumait2009topic, lau2012line}, dDTM 은 매 기간별로 동일한 개수의 토픽이 존재한다고 가정한다.
+이러한 문제를 해결하기 위하여 Locality Sensitive Hashing (LSH) 을 이용하는 방법이 제안되었다 \cite{wurzer2015tracking}.
+LSH 는 Random Projection (RP) \cite{bingham2001random} 에 기반한 벡터 양자화 (vector quantization) 방법으로, 원 공간에서 유사한 두 벡터를 하나의 집합인 버킷 (bucket) 으로 그룹화한다 \cite{indyk1998approximate, charikar2002similarity}.
+각 버킷은 비슷한 문서들로 구성되어 있으며 이를 토픽으로 생각할 수 있다.
+버킷의 개수는 제한이 없기 때문에 새로운 토픽을 탐색하는데 이용될 수 있으며 \cite{ding2013topic}, 주어진 문서와 유사한 토픽의 다른 문서의 탐색에도 이용되었다 \cite{zhang2010self, sundaram2013streaming}.
+문서 군집화도 새로운 토픽의 탐색에 이용되었다 \cite{yang2012framework, wurzer2015tracking}.
+각 문서 군집을 하나의 토픽으로 가정한 뒤 이전 시점에 생성된 군집과의 거리가 사용자가 정의한 임계값보다 클 경우 새로운 군집을 생성함으로써 토픽의 개수에 제한이 있는 문제를 해결하였다.
+하지만 LSH 와 군집화 방법에 기반한 방법들은 하나의 문서는 하나의 토픽으로 구성된다고 가정한다.
+
+dDTM 나 Online LDA 를 학습하기 전 사용자에 의하여 문서 집합을 기간 별로 나누어야 하는 문제를 해결하기 위하여  continuous-time Dynamic Topic Model (cDTM) 은 임의의 두 시점 $t-k, t$ 에 대한 제약조건을 식 \ref{eq:cdtm} 의 $\Delta_{t-k, t}$ 처럼 두 시점에 대한 연속 함수로 정의함으로써 이러한 한계점을 완화하였다 \cite{wang2012continuous}. 
+
+\begin{equation}
+\label{eq:cdtm}
+\beta_t \sim \mathcal{N}(\beta_{t-1}, \Delta_{t-k, t})
+\end{equation}
+
+혹은 시계열 분리 모델을 이용하여 동일한 토픽으로 이뤄진 구간을 탐색하는 방법도 제안되었다.
+\cite{kleinberg2003bursty} 은 매 시점마다 발생하는 관측값 $o_t$ 를 이용하여 각 시점의 상태 (state) $s_t$ 를 추정하기 위하여 Hidden Markov Model (HMM) 을 이용하였다.
+인접한 시점의 상태 $s_t, s_{t-1}$ 가 변화할 때 모델의 학습 비용을 증가하도록 비용 함수를 개선함으로써 유사한 관측값이 발생하는 구간을 분리하였다.
+기간 별 단어의 발생 빈도를 $o_t$ 로 이용하여 단어를 기준으로 구간을 분리한 뒤 dDTM 을 학습하는 방법이 제안되었다 \cite{takahashi2012applying, huang2017probabilistic}.
+그러나 이러한 접근법은 상관 관계가 있는 여러 단어들을 동시에 이용하지 못하는 한계점이 있다.
+
+여러 종류의 변수를 이용하여 시계열 데이터의 구간을 분리하기 위한 방법도 제안되었다.
+\cite{karim2018multivariate, yao2017deepsense} 은 Feed Forward Neural Network 나 Convolutional Neural Network 를 이용하여 여러 종류의 항목으로 이뤄진 입력값을 벡터로 표현한 뒤 Recurrent Neural Network 에 시간의 흐름에 따른 패턴의 변화를 학습시켰다.
+\cite{che2018recurrent} 은 값이 존재하지 않거나 데이터 생성 시간이 연속적인 상황을 해결하며 시계열 구간을 나누는 방법을 제안하였다.
+이러한 방법은 텍스트와 같은 고차원의 데이터에서도 이용되었는데, \cite{kim2016exploring} 은 임베딩 방법을 이용하여 대화의 문장을 벡터로 표현한 뒤 동일한 토픽의 대화를 구분하는 방법을 제안하였다.
+그러나 이들은 학습에 입력값과 패턴 레이블을 이용하는 지도학습 기반 방법으로 학습에 등장한 패턴만을 인식하는 한계가 있다.
+
+\cite{kim2019representation} 은 구간 별 패턴에 대한 레이블이 없는 상황에서 동일한 패턴의 구간을 탐색하기 위한 방법을 제안하였다.
+긱 시점 $t$ 가 벡터 $y_t$ 로 표현될 경우 시계열의 구간 분리는 시간이 변함에 따라 특정 지역에서 다른 지역으로 벡터들이 크게 이동하는 시점을 찾는 문제로 해석할 수 있다 (그림 \ref{fig:timeseries_geometric_interpretation_of_segmentation}).
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.7\linewidth]{fig/timeseries_geometric_interpretation_of_segmentation.jpg}
+\caption{시계열 분리의 기하학적 해석}
+\label{fig:timeseries_geometric_interpretation_of_segmentation}
+\end{figure}
+
+하지만 시계열 벡터값의 표현에 분산이 클 경우 인접한 두 시점 간의 거리를 기반으로 시계열을 분리하면 매우 작은 구간으로 나뉘어질 수 있다.
+이러한 한계를 완화하기 위하여 식 \ref{eq:segment_distance} 처럼 인접한 주변의 모든 벡터들 간의 거리의 가중 평균을 이용하는 방법도 제안되었다 \cite{foote2000automatic}.
+
+\begin{equation}
+\begin{split}
+S_t = \Sigma_{i=-s}^{s} \Sigma_{j=-s}^{s} w_{i,j} D_{(t+i,t+j)} \\
+D_{p,q} := |y_p - y_q|
+\end{split}
+\label{eq:segment_distance}
+\end{equation}
+
+시점들이 각 시점의 특징을 잘 설명할 수 있는 벡터로 표현된다면 임의의 시계열 데이터에 대하여 식 \ref{eq:segment_distance} 은 적용이 가능하다.
+\cite{kim2019representation} 는 수치형 및 명목형 변수가 혼합된 차량의 주행 과정 중 수집된 센서 데이터를 이용하여 동일한 패턴으로 주행하는 구간을 탐색하는 방법을 제안하였다.
+또한 각 패턴을 대표하는 핵심 입력값들을 선택함으로써 구간을 요약하였다.
+
+\section{유사 주제 구간 분리를 이용한 시계열 형식의 문서 요약}
+
+이 장에서는 한 질의어에 대한 뉴스 문서를 요약하기 위한 방법을 제안한다.
+한 질의어에 대한 뉴스 기사는 시점 $t$ 별로 주요 주제가 존재하며, 시점에 따라 주요 주제가 변화한다.
+하지만 시점 별 주요 주제에 대한 정답 데이터가 존재하지 않기 때문에 비지도기반으로 주요 주제가 변하는 시점을 탐지하여야 한다.
+
+제안하는 시계열 형식 문서 집합을 요약하는 방법의 의사 코드는 \ref{fig:pseudocode_timeseries_summarization} 처럼 다섯 단계로 구성되어 있다.
+
+첫 단계에서는 시계열 형식의 문서 집합 $D$ 를 시점 별로 벡터 $X$ 로 표현한다.
+이를 위하여 bag-of-words model 과 같은 고차원 벡터의 표현 방법이나 Doc2Vec 과 같은 분산 표상 표현 (distributed representation) 의 방법이 모두 이용될 수 있다.
+
+두번째 단계에서는 벡터로 표현된 시계열 형식의 $X$ 를 이용하여 각 시점마다 주제의 변화 점수 $B$ 를 계산한다.
+이를 위하여 \cite{kim2019representation} 에서 제안한 거리 기반 구간 분리 방법이 이용될 수 있다.
+
+세번째 단계에서는 주제의 변화 점수 $B$ 가 $m_b$ 보다 크고 길이가 $m_l$ 보다 큰 구간을 분리한다.
+뉴스 기사의 경우 주요 주제는 오랜 기간 동안 기사가 지속되기 때문에 구간의 최소 길이 제약은 주요 주제를 탐색하는데 유용하다.
+
+네번째 단계에서는 각 구간 $s$ 마다 키워드를 추출한다.
+각 구간을 $s$ 문서의 군집으로 여길 경우 구간 $s$ 에 등장한 단어 분포와 $s$ 를 제외한 다른 구간에서 등장한 단어 분포를 이용하여 \ref{improved_kmeans} 장의 식 \ref{eq:proposed_labeler} 을 이용할 수 있다.
+
+마지막 단계에서는 추출된 키워드 집합 $KW$ 과 \ref{summarize_single_topic} 장의 그림 \ref{fig:krwordrank_sentence_filtering} 의 핵심 문장 추출 방법을 이용하여 각 구간 $s$ 를 요약할 수 있는 핵심 문장을 추출한다.
+
+\begin{figure}[H]
+\renewcommand{\arraystretch}{0.7}
+\centering
+\begin{tabular}{|l|}
+\hline
+\begin{tabular}[c]{@{}l@{}}
+$D$: documents stream\\
+$w$: window length\\
+$m_l$: minimum segment length\\
+$m_b$: minimum boundary score\\
+$k_0$: number of keyword candidates\\
+$k_1$: number of selected keywords\\
+$k_2$: number of keysentences\\
+$\sigma$: minimum distance between selected key-sentences\\
+\\
+\textbf{def summarize\_documents\_stream} ($D, m_l, m_b, k_0, k_1, k_2$): \\
+\quad $KW$ = [ ] : keyword list \\
+\quad $KS$ = [ ] : keysentence list \\
+\quad $X \leftarrow$ encode($D$) \\
+\quad $B \leftarrow$ compute change point score($X, w$) \\
+\quad $S \leftarrow$ segment documents stream($X, B, m_l, m_b$) \\
+\quad \textbf{for} $s$ in $S$: \\
+\quad \quad $KW_s, KV_s \leftarrow$ segment labeling ($S, s, k_0, k_1$) \\
+\quad \quad $KS_s \leftarrow$ seleft keysentences ($s, KV_s, \sigma, k_2$) \\
+\quad \quad $KW += KW_s$ \\
+\quad \quad $KS += KS_s$ \\
+\quad \textbf{return} $KW, KS$
+
+\end{tabular} \\ \hline
+\end{tabular}
+\caption{제안하는 시계열 형식 문서 집합 요약 방법의 의사 코드}
+\label{fig:pseudocode_timeseries_summarization}
+\end{figure}
+
+\subsection{시계열 분리를 위한 문서 집합의 구간 별 벡터 표현 방법} \label{timeseries_representation}
+
+문서 혹은 문서 집합을 벡터로 표현하기 위하여 다양한 방법이 이용될 수 있다.
+시계열 분리를 위하여 한 시점을 벡터 $X_t$ 로 표현할 때에는 동일한 주제를 포함하는 시점의 벡터들은 비슷한 값으로, 다른 주제를 포함하는 시점의 벡터들은 서로 다른 값으로 표현되어야 한다.
+수집된 뉴스 문서들은 생성된 날짜를 기준으로 병합하여 각 날마다 하나의 가상 문서 $D_t$ 를 생성한다.
+토크나이저를 이용하여 문서를 단어열로 분해한 뒤 단어 빈도 벡터 (term frequency, TF), TF-IDF \cite{sparck1972statistical}, 그리고 Doc2Vec \cite{le2014distributed} 을 이용하여 $D_t$ 를 $X_t$ 로 벡터화 하였다.
+
+벡터 표현 방법의 품질을 정성적으로 측정하기 위하여 벡터로 표현된 $X_t$ 간의 거리 행렬을 이용하였다.
+점들 간 거리 행렬은 시간의 변화에 따른 패턴의 변화를 시각적으로 이해할 수 있도록 도와주기 때문에 \cite{balasubramanyan2011block}, 음악과 같은 시계열 형식의 데이터의 구조를 시각적으로 표현하는 목적으로 이용된다 \cite{paulus2006music, paulus2010state, mcfee2014analyzing}.
+
+그림 \ref{fig:timeseries_pairwise_tf} 운 TF 를 이용하여 문서를 벡터화 한 시점 간 거리 행렬이며, 그림의 좌측 하단부터 우측 상단으로 이동하는 방향으로 시간이 증가한다.
+진한 검정색일수록 $X_i, X_j$ 간의 벡터 간 거리가 가까움을 의미하는데, (30, 30) 에서 (50, 50) 사이와 같은 진한 색의 정사각형은 해당 기간동안 비슷한 문서들이 생성되었음을 의미한다.
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.5\linewidth]{fig/timeseries_pairwise_tf.png}
+\caption{단어 빈도 (term frequency) 기반 시점 간 거리 행렬 예시}
+\label{fig:timeseries_pairwise_tf}
+\end{figure}
+
+하지만 한 질의어를 중심으로 수집된 뉴스 문서들은 같은 카테고리에 속할 가능성이 높으며, '기자', '오늘'과 같이 대부분의 뉴스 문서에서 등장하는 불용어들이 존재한다.
+이들의 영향력을 줄이기 위하여 TF-IDF 를 이용하였다.
+TF-IDF 는 단어가 등장한 문서의 비율이 1 에 가까울수록 가중치가 0 에 가까워져 불용어의 영향력이 줄어들도록 유도한다 (식 \ref{eq:tfidf}).
+
+\begin{equation}
+TFIDF(d,t) = TF(d,t) \times \log \frac{N}{DF(t)}
+\label{eq:tfidf}
+\end{equation}
+
+TF-IDF 를 이용하여 시점 간 거리 행렬을 그리면 그림 \ref{fig:timeseries_pairwise_tfidf} 처럼 문서 간의 거리가 뚜렷하게 표현된다.
+그림 \ref{fig:timeseries_pairwise_tfidf} 의 대각선에는 그림 \ref{fig:timeseries_pairwise_tf} 보다 더 뚜렷한 정사각형들이 존재함을 확인할 수 있는데, 이는 TF-IDF 를 이용하면 주제가 변하는 시점을 명확히 탐색할 수 있음을 의미한다.
+
+Doc2Vec 을 이용하여 문서를 벡터로 표현할 경우에는 그림 \ref{fig:timeseries_pairwise_doc2vec} 처럼 매 시점 별로 비슷한 벡터가 생성된다.
+이는 앞서 설명한 것처럼 모든 문서 집합에 공통으로 등장하는 불용어들 뿐 아니라 뉴스 기사에는 특정한 형식과 관용어구가 존재하기 때문이며, Word2Vec 을 단어의 임베딩 벡터로 이용하면 토픽이 다르더라도 문맥이 비슷한 단어에 의해 서로 다른 토픽의 문서도 비슷한 벡터로 표현될 수 있다.
+이를 해결하기 위해서는 토픽 간 유사도를 보존하는 단어 임베딩 벡터를 이용하거나 \cite{moody2016mixing, liu2015topical}, TF-IDF 와 같이 소수의 단어에 의하여 문서 간 거리가 구분되는 벡터 표현 방법을 이용해야 한다.
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.5\linewidth]{fig/timeseries_pairwise_doc2vec.png}
+\caption{Doc2Vec 기반 시점 간 거리 행렬 예시}
+\label{fig:timeseries_pairwise_doc2vec}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{성능 평가}
+
+제안된 방법의 성능을 평가하기 위하여 네이버 뉴스로부터 2013-01-01 부터 2019-03-10 기간에 한국의 정치인 이름이 포함된 뉴스 기사를 수집하였다.
+정성적 성능 평가를 위하여 세 명의 질의어가 포함된 뉴스를 이용하였다.
+각 데이터셋은 각각 질의어 '김무성', '박근혜', '유시민'이 포함된 뉴스 기사로, 질의어에 따라 생성된 뉴스 개수와 일평균 뉴스 개수에 큰 차이가 난다 (표 \ref{tab:timeseries_dataset}).
+
+\begin{table}[H]
+\centering
+\caption{실험에 이용한 3 종류의 데이터셋}
+\label{tab:timeseries_dataset}
+\begin{tabular}{|c|c|c|c|c|}
+\hline
+질의어 & 고유 날짜 수 & 뉴스 개수 & 고유 단어 개수 & 일평균 뉴스 개수 \\ \hline
+김무성 & 1,636 & 223,590 & 69,597 & 136.67 \\ \hline
+박근혜 & 2,260 & 1,339,266 & 249,152 & 592.60 \\ \hline
+유시민 & 446 & 18,239 & 13,619 & 40.90 \\ \hline
+\end{tabular}
+\end{table}
+
+세 종류의 데이터셋 모두 \ref{noun_extraction} 에서 제안한 명사 추출기와 \ref{word_extraction} 의 L-Tokenizer (그림 \ref{fig:pseudocode_ltokenizer}) 를 이용하여 각 문서를 단어열로 구분하였다.
+날짜를 기준으로 작성된 뉴스 기사를 합쳐 가상의 문서를 생성한 뒤, TF-IDF 를 이용하여 각 일자 별 벡터 $X_t$ 를 학습하였다.
+
+\subsection{질의어 '김무성'이 포함된 뉴스 기사의 구간 분리}
+
+질의어 '김무성'이 포함된 뉴스는 2014 년 중순부터 2016년 중순, 그리고 2016년 말에 많은 수의 뉴스가 발생하며, 간헐적으로 짧은 기간 많은 양의 뉴스가 발생한다 (그림 \ref{fig:timeseries_kim_num_docs}).
+빨간 선은 제안된 방법에 의하여 탐색된 구간의 경계선이다.
+새로운 사건이 발생할 때 많은 양의 뉴스가 작성되는데, 제안된 방법은 일별 뉴스 문서의 개수 정보를 이용하지 않았음에도 주제가 바뀌는 순간을 인식하였음을 알 수 있다.
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.9\linewidth]{fig/timeseries_kim_num_docs.png}
+\caption{질의어 '김무성'이 포함된 뉴스의 일별 문서 개수}
+\label{fig:timeseries_kim_num_docs}
+\end{figure}
+
+그림 \ref{fig:timeseries_pairwise_tfidf} 는 일간 거리 행렬로, 짧은 기간 내에 비슷한 주제의 뉴스들이 발생하였음을 확인할 수 있다.
+1,636 일의 뉴스는 길이가 2 일 이상인 99 개의 구간으로 나뉘어졌으며, 각 구간의 평균 길이는 8.74 일이다.
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.5\linewidth]{fig/timeseries_pairwise_tfidf.png}
+\caption{질의어 '김무성'이 포함된 뉴스 문서의 일간 거리 행렬}
+\label{fig:timeseries_pairwise_tfidf}
+\end{figure}
+
+표 \ref{tab:kim_summarize} 는 그림 \ref{fig:timeseries_kim_num_docs} 에서 뉴스의 개수가 급증한 기간이 포함된 구간의 키워드와 핵심 문장의 예시이다.
+2016년 12월에는 당시 새누리당 내 의원들의 당파 논쟁으로 인하여 여러 개의 보수 정당들이 생성되는 시기이며, 2017년 11월에는 신규 보수 정당의 의원들이 당시 자유한국당으로 재입당하는 과정에서 의원들간의 논쟁이 격화되던 시기이다.
+해당 시기 김무성 의원 역시 바른 정당으로 탈당 후 자유한국당으로 복당하였는데, 해당 사건에 관련된 키워드와 핵심 문장들로 해당 시기가 요약되었음을 알 수 있다.
+이러한 정치적 사건 외에도 일명 '노룩패스'로 불리는 해프닝 역시 하나의 구간으로 탐색됨을 볼 수 있다.
+5월 23일 발생한 '노룩패스' 사건은 이후 여러 패러디로 이어졌는데, 이와 같이 시기성이 짧은 사건도 하나의 구간으로 분리되어 요약될 수 있다.
+
+\subsection{질의어 '박근혜'가 포함된 뉴스 기사의 구간 분리}
+
+질의어 '박근혜'가 포함된 뉴스는 '김무성'이 포함된 뉴스보다 상대적으로 많이 발생하였으며, 탄핵 과정 및 국정농단 조사 기간인 2016년 말부터 2017년 초까지 급증하였다 (그림 \ref{fig:timeseries_park_num_docs}).
+뉴스의 구간이 나뉘어지는 지점은 상대적으로 뉴스의 개수가 급증하는 기간임은 비슷하나 이전과 길이가 긴 구간으로 나뉘어졌는데, 2,260 일의 기간이 길이가 2일 이상인 68 개의 구간으로 나뉘어졌으며, 평균 구간의 길이는 32.5 일이다.
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.9\linewidth]{fig/timeseries_park_num_docs.png}
+\caption{질의어 '박근혜'가 포함된 뉴스의 일별 문서 개수}
+\label{fig:timeseries_park_num_docs}
+\end{figure}
+
+그림 \ref{fig:timeseries_park_pairwise} 은 그림 \ref{fig:timeseries_pairwise_tfidf} 와 달리 긴 구간 비슷한 주제의 문서들이 생성되어 구간이 잘 나뉘어지지 않았는데, 이는 대통령 재임 시절에는 '박근혜 정부'처럼 정부를 지칭하는 표현으로 이용되었으며 재임 이후에는 국정농단 사건과 관련된 모든 기사에 질의어가 포함되어 있기 때문이다.
+이처럼 한 기간에 여러 주제가 포함되어 있을 경우에는 이들을 포함하는 상위 주제가 변하는 지점을 경계로 구간이 나뉘어졌다.
+
+표 \ref{tab:park_summarize} 에서 살펴볼 수 있듯이 질의어 '박근혜'가 포함된 뉴스는 대선 당선과 인수위원회, 탄핵 시국, 국정농단 조사 및 판결과 같은 큰 사건을 중심으로 구간이 나뉘었음을 확인할 수 있다.
+제안하는 방법은 큰 트렌드를 기준으로 구간을 나누기 때문에 각 기간 별로 여러 개의 세부 주제가 존재하며, 구간 별 키워드는 각 세부 주제를 대표하는 단어인 경우가 많다.
+그럼에도 불구하고 각 구간에서 자주 등장하며 다른 구간에서 등장하지 않는 단어를 중심으로 키워드를 선택하였기 때문에 해당 군집의 세부 주제들을 유추할 수 있는 키워드와 핵심 문장들로 구간이 요약되었다.
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.5\linewidth]{fig/timeseries_park_pairwise.png}
+\caption{질의어 '박근혜'가 포함된 뉴스 문서의 일간 거리 행렬}
+\label{fig:timeseries_park_pairwise}
+\end{figure}
+
+\subsection{질의어 '유시민'이 포함된 뉴스 기사의 구간 분리}
+
+반면 질의어 '유시민'이 포함된 뉴스는 이전의 뉴스들보다 적은 수의 뉴스가 생성되었으며, 2016년 부터 2018년 까지 주기적으로 많은 뉴스가 발생하였다 (그림 \ref{fig:timeseries_you_num_docs}).
+이는 해당 기간에 진행한 방송프로그램 '썰전'과 '알쓸신잡'을 중심으로 뉴스가 생성되었기 때문이며, 해당 프로그램의 기사를 중심으로 구간이 나뉘어졌다.
+그렇기 때문에 446 일의 기간이 91 개의 짧은 기간들로 나뉘어졌다.
+그림 \ref{fig:timeseries_you_pairwise} 에서도 각 일자별로 비슷한 주제가 생성되는 경우가 적음을 확인할 수 있다.
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.9\linewidth]{fig/timeseries_you_num_docs.png}
+\caption{질의어 '유시민'이 포함된 뉴스의 일별 문서 개수}
+\label{fig:timeseries_you_num_docs}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[keepaspectratio=true, width=0.5\linewidth]{fig/timeseries_you_pairwise.png}
+\caption{질의어 '유시민'이 포함된 뉴스 문서의 일간 거리 행렬}
+\label{fig:timeseries_you_pairwise}
+\end{figure}
+
+그 결과 표 \ref{tab:you_summarize} 의 구간 별 문서 요약의 결과는 이전 두 데이터와 달리 진행 중이던 방송프로그램의 내용에 관련된 내용처럼 세부적인 주제를 요약하는 키워드와 핵심 문장으로 구성되었다.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{결론}
+
+이 장에서는 시계열 형식으로 발생하는 문서 요약을 위하여 문서 집합을 비슷한 주제를 포함하는 구간으로 구분한 뒤, 각 구간을 요약하는 방법을 제안하였다.
+문서가 생성된 시간 정보는 주제의 변화를 인식하는데 유용한 정보이지만, 단어의 빈도와 문서 생성 시간처럼 서로 다른 정보로 구성된 데이터 간에는 거리를 정의하기 어렵기 때문에 군집화 알고리즘이 이용될 수 없다.
+이러한 문제를 해결하기 위하여 시간이 변함에 따라 문서 집합의 주제가 변하는 지점을 구간의 경계로 탐색하는 방법을 제안하였다.
+문서 집합을 생성 시간 단위로 병합하여 벡터로 표현한 뒤, 시간이 변함에 따라 벡터 간 거리가 멀어지는 지점을 구간의 경계로 선택하였다.
+각 구간은 문서 군집화 방법의 군집으로 해석할 수 있기 때문에 \ref{improved_kmeans} 장에서 제안한 군집 중심값 기반 키워드 추출 방법을 이용하여 키워드를 추출한 뒤 \ref{summarize_single_topic} 장에서 제안한 핵심 문장 추출 방법을 적용하여 구간을 요약하였다.
+
+제안한 방법의 성능을 평가하기 위하여 네이버 뉴스로부터 정치인 이름이 포함된 뉴스를 수집하였다.
+다수의 사람들에게 알려진 유명 정치인들의 뉴스 기사에 제안한 방법을 적용한 뒤 요약 결과를 해석하는 정성적 평가를 진행하였다.
+생성되는 뉴스의 개수가 많고 주제가 다양할 경우 다양한 주제를 아우르는 큰 주제를 중심으로 구간이 길게 나뉘며, 반대의 경우에는 자세한 주제를 중심으로 짧은 여러 개의 구간이 나뉘어졌다.
+하지만 구간의 길이와 관계없이 해당 기간의 사건을 설명하는 대표적인 키워드와 문장이 추출됨을 확인하였다.
+즉 제안한 방법은 기간 별 문서 집합을 구성하는 주제의 세분성 (granularity) 을 조절하며 구간을 분리한다.
+
+그러나 제안된 방법은 시간의 변화에 따른 큰 트렌드만을 파악할 수 있다.
+큰 주제는 여러 개의 세부 주제를 바탕으로 계층적 구조를 이루며, 시간에 따른 계층적 문서 요약이 가능할 경우 주제의 세분성을 조절하며 특정 기간의 요약 결과를 제공할 수 있다.
+
+또한 제안하는 방법은 TF-IDF 를 기반으로 각 시점을 벡터로 표현하였다.
+하지만 Bag-of-Words Model 은 sparsity 의 문제를 겪으며, 각 시점이 매우 큰 벡터로 표현된다.
+이를 해결하기 위하여 Doc2Vec 과 같은 분산 표상 표현 방법이 이용되기도 하지만, 토픽 정보를 활용하지 않는 단어 임베딩 방법을 이용하여 문서를 벡터로 표현할 경우 대부분 시점의 문서들이 비슷한 벡터로 표현되는 한계가 있다.
+이를 해결하기 위하여 토픽 모델 기반 단어 임베딩 방법과 이를 이용하는 문서 임베딩 방법이 연구되어야 한다.
+
+
+\begin{table}[H]
+\centering
+\small
+\caption{질의어 '김무성'이 포함된 뉴스의 구간 별 문서 요약 예시.}
+\label{tab:kim_summarize}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|l|}
+\hline
+날짜 & \multicolumn{1}{c|}{요약} \\ \hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}2016-12-10\\  $\sim$\\ 2016-12-30\end{tabular}} & \begin{tabular}[c]{@{}l@{}}개혁보수신당, 보수신당, 가칭, 신당, 창당, 개혁, 중도, 분당, 비대위원장, 보수,\\ 탈당, 유승민, 주호영, 비상시국회, 분열, 친박계, 모임, 황영철, 나경원, 정책, \\ 친박, 선출, 고민, 의원, 비박, 선언\end{tabular} \\ \cline{2-2} 
+ & \begin{tabular}[c]{@{}l@{}}- 김무성 유승민 등 새누리당 비박 비박근혜 계 의원 34명이 탈당을 선언하고\\   신당의 가칭을 보수신당 이라고 정했다\\ - 28일 국회 의원회관에서 주호영 원내대표 김무성 유승민 의원 등이 참석한\\   가운데 가 개혁보수신당 정강정책 토론회가 열리고 있다\\ - 김무성 전 대표가 친박 지도부로는 당 재건이 어렵다며 탈당을 시사해 비대위원장\\   선출이 분당 분수령이 될 거란 관측이 나옵니다\\ - 아시아경제 윤동주 기자 김무성 새누리당 전 대표가 26일 국회에서 열린 가칭\\   개혁보수신당 창당 준비위원회의에 참석하고 있다\\ - 김무성 전 새누리당 대표가 친박근혜계를 향해 대통령의 정치적 노예들 이라며\\   강하게 비판하며 중도 보수 창당을 고민하고 있다고 밝혔다\end{tabular} \\ \hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}2017-05-25 \\  $\sim$\\ 2017-05-26\end{tabular}} & \begin{tabular}[c]{@{}l@{}}유병재, 패러디, 반납, 방송인, 노룩, 노룩패스, 공항, 네티즌들, 웃음,\\ 캐리어, 화제, 제목, 공개, KBS, 커뮤니티\end{tabular} \\ \cline{2-2} 
+ & \begin{tabular}[c]{@{}l@{}}- 서울경제 방송인 유병재가 김무성 의원의 캐리어 노 룩 패스 를 패러디해 \\   눈길을 끌었다\\ - 그룹 투포케이 역시 26일 오전 KBS 2TV 뮤직뱅크 리허설을 가는 길에\\   김무성의 노룩패스 패러디를 해 웃음을 자아냈다\\ - 앞서 김무성 의원이 공항에서 수행원을 보지 않고 캐리어를 굴려 전달하는\\   모습이 포착돼 큰 화제를 모은 바 있다\\ - 김무성 의원 등 전 새누리당 소속 의원 27명이 오는 5월31일까지 1년치\\   세비를 국가에 반납할 지 관심이 쏠리고 있다\\ - 김무성 의원의 행동은 온라인에서 지탄을 받았고 해외 온라인 커뮤니티 레딧\\   등에서 한국인의 스웨그 라는 제목으로 공개되기까지 했다\end{tabular} \\ \hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}2017-11-02\\  $\sim$\\ 2017-11-15\end{tabular}} & \begin{tabular}[c]{@{}l@{}}탈당계, 재입당, 복당파, 입당, 강길부, 지위, 정양석, 의총, 제출, 간담회, 탈당, \\ 선언, 이종구, 황영철, 김용태, 집단, 당사, 기자회견, 김영우, 교섭단체, 의원총회,\\ 친박, 창당, 홍준표\end{tabular} \\ \cline{2-2} 
+ & \begin{tabular}[c]{@{}l@{}}- 재입당 국회의원 간담회에서 바른정당을 탈당한 김무성 강길부 김영우 김용태\\   이종구 황영철 정양석 홍철호 의원과 손을 잡고 기념촬영을 하고 있다\\ - 바른정당은 지난 8일 김무성 의원 등 8명이 일제히 탈당계를 제출한 뒤\\   자유한국당에 복당 교섭단체 지위를 잃었다\\ - 홍준표 자유한국당 대표가 9일 오전 서울 여의도 당사에서 열린 바른정당 탈당파\\   의원들의 재입당 간담회에서 김무성 의원과 대화를 나누고 있다\\ - 바른정당의 김무성 의원 등 8명이 6일 탈당을 선언하기로 했다 이로써 바른정당은\\   창당 9개월여 만에 절반으로 쪼개지게 됐다\\ - 실제 강성 친박계는 김무성 의원 등 8명의 탈당파 복귀만으로도 의총 소집을\\   요구하는 등 조직적 반발 기류를 드러내고 있다\end{tabular} \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\caption{질의어 '박근혜'가 포함된 뉴스의 구간 별 문서 요약 예시}
+\label{tab:park_summarize}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|l|}
+\hline
+날짜 & \multicolumn{1}{c|}{요약} \\ \hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}2013-01-02\\  $\sim$\\ 2013-02-24\end{tabular}} & \begin{tabular}[c]{@{}l@{}}내정자, 후보자, 인사청문, 의혹, 삼청동, 지명, 취임식, 핵실험, 김용준,\\ 장관, 대통령직인수위원회, 업무, 청와대, 오후, 부처, 인수위원회,\\ 대통령직, 위원장, 논의, 검토, 방안\end{tabular} \\ \cline{2-2} 
+ & \begin{tabular}[c]{@{}l@{}}- 정 총리 후보자는 8일 삼청동 인수위에서 기자회견을 갖고 박근혜 정부의\\   초대 국무총리로 지명된 소감에 대해 이같이 말했다\\ - 박근혜 대통령 당선인과 김용준 대통령직인수위원회 위원장이 30일 오후 \\   서울 종로구 삼청동 대통령직 인수위원회에서 열린 정무분과 업무보고에 참석했다\\ - 20일 정홍원 국무총리 후보자의 국회 인사청문회를 시작으로 박근혜 정부의\\   17개 부처 초대 장관 내정자들의 청문회가 줄줄이 이어진다\\ - 박근혜 대통령 당선인은 이번주 초 총리 후보자와 청와대 인선을 함께 발표하는\\   방안을 검토하고 있는 것으로 전해졌습니다\\ - 박근혜 정부 초대 국무총리로 지명된 김용준 내정자의 검증 과정에서 재산 문제가\\   가장 먼저 도마에 오를 것으로 보인다\end{tabular} \\ \hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}2016-10-02\\  $\sim$\\ 2016-12-02\end{tabular}} & \begin{tabular}[c]{@{}l@{}}하야, 국정농단, 최순실, 촛불, 퇴진, 시국, 탄핵, 게이트, 비선, 특검, 광화문, \\ 행진, 검찰, 수사, 집회, 대국민, 시민, 의혹, 분노, 재단, 혐의, 헌법, 사태,\\ 조사, 개입, 사건, 촉구, 요구, 사과, 임명, 연설\end{tabular} \\ \cline{2-2} 
+ & \begin{tabular}[c]{@{}l@{}}- 비선 실세 최순실 씨의 국정농단 사태의 책임을 물어 박근혜 대통령의\\   퇴진을 촉구하는 5차 주말 촛불집회가 26일 열린다\\ - 774억 원을 모금해 세웠는데 재단에 박근혜 대통령 측근인 최순실 \\   차은택 씨가 개입했다는 의혹은 현재 검찰 수사가 진행 중입니다\\ - 5일 오후 서울 광화문광장에서 박근혜 정권 퇴진 집회에 가족 단위로\\   참여한 시민들이 촛불을 들고 행진하고 있다\\ - 박영수 변호사가 박근혜 게이트 수사의 특별검사로 임명되었다 대통령은\\   특검 수사에 적극적으로 협조하고 직접 조사에도 응하겠다고 한다\\ - 국정농단 으로 박근혜 대통령의 하야와 탄핵을 요구하는 대학가의\\   시국선언이 번지고 있다\end{tabular} \\ \hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}2018-02-18\\  $\sim$\\ 2018-04-27\end{tabular}} & \begin{tabular}[c]{@{}l@{}}1심, 구형, 세월호, 징역, 이명박, 유죄, 피고인, 선고, 한국당, 참사, 4월, 대변인,\\ 국정, 혐의, 법원, 역사, 재판, 원장, 검찰, 인정, 사건, 조사, 뇌물, 소환, 지난해,\\ 회장, 구속, 받은, 판단\end{tabular} \\ \cline{2-2} 
+ & \begin{tabular}[c]{@{}l@{}}- 국정농단 사건으로 징역 30년을 구형받은 박근혜 전 대통령의 1심\\   선고가 오는 4월 6일 내려집니다\\ - 또 박근혜 전 대통령이 지난해 3월 21일 검찰 조사를 받은 지\\   358일만에 소환된 전직 대통령이 됐습니다\\ - 법원은 박근혜 전 대통령의 삼성그룹 뇌물수수 혐의와 관련해 앞서\\   일부 유죄가 인정된 최순실씨와 동일한 판단을 내렸다\\ - 법원이 최순실 박근혜 1심 선고를 근거로 이 부회장 항소심 재판부의\\   판단이 잘못됐다고 본다면 뇌물액수가 커질 가능성이 크다\\ - 그는 이명박 박근혜 전직 대통령이 구속된 데 대해 한국당을 향해 쓴 목소리도 냈다\end{tabular} \\ \hline
+\end{tabular}
+}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\caption{질의어 '유시민'이 포함된 뉴스의 구간 별 문서 요약 예시}
+\label{tab:you_summarize}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{|c|l|}
+\hline
+날짜 & \multicolumn{1}{c|}{요약} \\ \hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}2016-03-04\\  $\sim$\\ 2016-03-04\end{tabular}} & \begin{tabular}[c]{@{}l@{}}자본, 무전취식, 삼청각, 시술, 20만, 고급, 세종문화회관, 직권상정, 국회의장, 직원,\\ 테러방지법, 필리버스터, 홍보, 식사, 문구, 가득, 몰려, 방청객, 국가, 외모, 원인, 넥타이\end{tabular} \\ \cline{2-2} 
+ & \begin{tabular}[c]{@{}l@{}}- 이어 유시민은 고급 시술전문 성형외과나 피부과에서 조용히 한다 며 요즘은 외모도\\   신체 자본이다 이라고 말했다\\ - 이날 유시민 작가는 국회의장이 국가비상사태 라고 테러방지법을 직권상정했다 고\\   말문을 열었다\\ - 유시민은 방청객만 가득하고 의원석은 텅텅 비어있다 면서 편의점에 알바생 하나 있고\\   손님들만 몰려 있는 것과 같은 것 이라고 답했다\\ - 한편 이날 전원책과 유시민은 필리버스터 삼청각 무전취식 논란 등 다양한 사안을 놓고\\   토론을 펼쳤다\\ - 유시민은 세종문화회관 직원인 정팀장의 행각을 지적하며 20만 9천 원 짜리 밥\\   구경도 못해본 사람이 99.9\% 다 라고 말했다\end{tabular} \\ \hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}2017-07-29\\  $\sim$\\ 2017-07-29\end{tabular}} & 지식인, 보성, 시즌2, 순천, 통영, 출연진, 제작, 양정우, 도시, 28일, 기획, 지식 \\ \cline{2-2} 
+ & \begin{tabular}[c]{@{}l@{}}- 이후 편집 영상에서 유시민은 여행지와 관련한 풍부한 지식을 드러내\\   최고의 지식인다운 면모를 보였다\\ - 제가 유시민 선생님의 이름을 많이 팔고 다녔죠 라고 말한 양정우 PD는\\   섭외 비하인드에 대해 털어놓기도 했다\\ - 통영 순천 보성 강릉 경주 공주 부여 세종 춘천 전주 등 전국 10개 도시를\\   돌아다녔다\\ - tvN 알쓸신잡 은 28일 마지막 방송에서 출연진이 한 공간에 모여\\   그간 방송에서 전하지 못한 뒷얘기를 나눴다\\ - 한편 알쓸신잡 후속으로는 삼시세끼 바다목장편 이 방송되며 시즌2는 현재 기획 중이다\end{tabular} \\ \hline
+\multirow{2}{*}{\begin{tabular}[c]{@{}c@{}}2018-05-25\\  $\sim$\\ 2018-05-25\end{tabular}} & \begin{tabular}[c]{@{}l@{}}관전, 군사적, 불안감, 멸균, 남북고위급회담, 취소, 후보자, 제재, 포인트, 마감,\\ 네거티브, 단일화, 발제, 북한, 무소속, 비핵화, 한반도, 불안, 보장\end{tabular} \\ \cline{2-2} 
+ & \begin{tabular}[c]{@{}l@{}}- 24일 방송된 JTBC 썰전 에서 유시민 작가가 남북고위급회담 취소에\\   대한 자신의 의견을 밝혔다\\ - 그리고 북한이 원하는 게 있다 면서 군사적 안전 보장 과 국제 무대에서의\\   제재 철회 를 꼽았다\\ - 이어 이런 것은 보건학적으로 설명이 가능하다 북한은 오랜 시간 주체사상 외\\   모든 다양한 의견을 멸균했다 고 덧붙였다\\ - 6.13 지방선거의 두 번째 관전 포인트 네거티브입니다 선거 시즌만 되면\\   고질적으로 되풀이 되는 네거티브 논란 이번에도 시동이 걸렸습니다\\ - 이어 북한은 아직도 비핵화를 한반도 전체 비핵화로 이해하고 있다 그것은\\   미국 전략자산 배제하는 것을 포함한다 고 덧붙였다\end{tabular} \\ \hline
+\end{tabular}
+}
+\end{table}
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newpage
@@ -2925,6 +3315,13 @@ Silhouette 점수는 군집의 개수를 결정하는데 이용할 수 있는 �
 여러 주제로 이뤄진 문서 집합은 각 주제를 구분하며 한 주제를 대표할 수 있는 단어를 키워드로 선별해야 한다.
 군집 중심값을 이용한 간단한 연산만으로 이러한 단어를 선택하는 방법을 제안하였으며, 군집 별 키워드 추출 결과의 정성 분석을 통하여 제안한 방법이 효과적임을 확인하였다.
 
+\texttt{\ref{timeseries_summarization} 장에서 시계열 형식의 문서 집합을 주제로 나뉘어진 구간 별로 요약하는 방법}을 제안하였다.
+문서의 생성 시점 정보는 문서 주제의 변화를 파악하는데 중요한 정보이며 시점마다 다양한 주제가 발생한다.
+주제의 개수가 예상하지 못하게 다양하거나 주제 별 문서 집합의 크기가 불균형적이면 토픽 모델링도 잘 작동하기 어렵기 때문에 비슷한 주제의 구간으로 문서 집합을 나누어야 한다.
+그러나 대부분의 경우 시점 별 주제에 대한 정보는 주어지지 않는다.
+이러한 문제를 해결하기 위하여 시점 별로 문서 집합의 트렌드를 벡터로 표현한 뒤, 거리 기반 시계열 구간 분리 방법을 적용하여 트렌드가 급변하는 구간을 탐색하는 비지도학습 기반 방법을 제안한다.
+구분된 각 구간에 대하여 \ref{improved_kmeans} 장과 \ref{summarize_single_topic} 장에서 제안된 문서 요약 방법을 적용하면 구간에 대한 트렌드를 요약할 수 있음을 확인하였다.
+
 \section{후속 연구}
 
 지도학습 방법들 역시 위에서 다룬 토크나이징 과업과 문서 요약 과업을 해결하기 위하여 이용될 수 있다.
@@ -2956,7 +3353,7 @@ Silhouette 점수는 군집의 개수를 결정하는데 이용할 수 있는 �
 \nocite{*}
 \end{bibpage}
 
-\keywordalt{Korean natural language processing, Unsupervised tokenizer, Noun extraction, Keyword extraction, Key-sentence extraction, Document clustering, Clustering labeling}
+\keywordalt{Korean natural language processing, Unsupervised tokenizer, Noun extraction, Keyword extraction, keysentence extraction, Document clustering, Clustering labeling}
 \begin{abstractalt}
 Natural language processing is interested in converting a human language into computer-usable information to solve real problems.
 Among its various sub-tasks, tokenization is a fundamental data pre-processing task that aims to detect words or morphemes from its input sentence.
@@ -2972,11 +3369,14 @@ In this paper, I propose various unsupervised Korean natural language processing
 Due to its unsupervised nature, it can be easily applied to various domains that lack labeled training data.
 Instead of relying on labeled data, I utilize the structures of Eojeol, a basic unit of a Korean word, as a prior knowledge for capturing the patterns in the Korean language.
 
-Based on dividing Eojeol into a L + [R] structure, I propose four new unsupervised natural language processing methods for Korean. 
+Based on dividing Eojeol into a L + [R] structure, I propose five new unsupervised natural language processing methods for Korean. 
 To overcome the out-of-vocabulary problem, I create two Eojeol based unsupervised Korean tokenizers that not only outperforms Word Piece Model but also performs at a similar level as supervised Korean tokenizers that are trained on labeled datasets and dictionaries.
 Furthermore, I devise a novel noun extraction method that is superior than the trained Korean morpheme analyzers.
 Beside these pre-processing tasks, I also propose key words and sentences selection method that removes redundant sentences and summarizes a set of Korean documents without relying on any tokenizer.
-For summarizing a document set that consists of documents with various topics, I additionally propose an improved document clustering method and effective cluster labeling method. Not only can our improved clustering method be applied to different languages, it is also up to several thousand times than existing k-means clustering algorithm during initialization. 
+For summarizing a document set that consists of documents with various topics, I additionally propose an improved document clustering method and effective cluster labeling method. It is up to several thousand times than existing k-means clustering algorithm during initialization. 
+Finally, I propose summarization method for time series formed document set.
+It first devides the data it into several segments based on time point of topic change, then the keyword and keysentence extraction methods proposed in previous chapter are applied to summarize each segment.
+Our improved clustering and time-series formed documents summarization methods can be applied to different languages not only Korean.
 
 Supervised machine learning approaches are inevitable in natural language processing.
 However, unsupervised methods offer additional insight into Korean language that supervised methods fail to capture.

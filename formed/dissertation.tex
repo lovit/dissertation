@@ -362,7 +362,7 @@ Word2Vec 의 임베딩 벡터 $e_w, e_c$ 의 내적은 두 단어의 co-occurrnc
 
 \begin{equation}
   \label{eq:levy_pmisvd}
-  e_w \cdot e_c = log \left( \frac{\#(w,c) \cdot \vert D \vert}{\#(w) \cdot \#(c)} \cdot \frac{1}{k} \right) = log \left( \frac{\#(w,c) \cdot \vert D \vert}{\#(w) \cdot \#(c)} \right) - log k
+  e_w \cdot e_c = log \left( \frac{\#(w,c) \cdot \vert D \vert}{\#(w) \cdot \#(c)} \cdot \frac{1}{k} \right) = log \left( \frac{\#(w,c) \cdot \vert D \vert}{\#(w) \cdot \#(c)} \right) - log(k)
 \end{equation}
 
 또한 식 \ref{eq:better_svd} 처럼 문맥 단어와의 co-occurrence 벡터에 Singular Value Decompoisition (SVD) 를 적용 경우 Word2Vec 처럼 분산 표상 표현 공간으로 변형이 가능하다 \cite{levy2015improving}.
@@ -379,7 +379,7 @@ $W^{SVD}$ 는 SVD 에 의하여 학습된 $w$ 의 임베딩 벡터이며, $C^{SV
 
 그러나 Word2Vec, GloVe, \cite{levy2014neural} 와 같은 단어 임베딩 방법은 빈도수가 작은 단어나 학습 데이터에 등장하지 않은 단어에 대해서는 정확한 벡터를 학습하기 어렵다.
 FastText 는 빈도수가 적은 단어와 미등록단어의 임베딩 벡터를 표현하기 위하여 한 단어를 구성하는 부분단어 (subwords) 의 임베딩 벡터 합으로 각 단어를 표현한다 \cite{bojanowski2017enriching}.
-예를 들어 'where' 라는 단어의 임베딩 벡터는 단어의 경계를 표현하기 위하여 단어 앞 뒤에 (, ) 를 추가한 뒤, '(where)' 의 3 \~ 6 글자의 부분단어인 '(wh, whe, ..., where)' 의 임베딩 벡터를 학습한다.
+예를 들어 'where' 라는 단어의 임베딩 벡터는 단어의 경계를 표현하기 위하여 단어 앞 뒤에 (, ) 를 추가한 뒤, '(where)' 의 3글자에서 6 글자의 부분단어인 '(wh, whe, ..., where)' 의 임베딩 벡터를 학습한다.
 그 뒤 단어 'where' 의 단어의 벡터는 이를 구성하는 모든 부분단어 벡터의 합으로 표현한다.
 부분단어의 벡터는 Word2Vec 을 이용하여 학습한다.
 그 결과 비슷한 문맥에서 이용되는 부분단어는 비슷한 임베딩 벡터로 표현되며, 형태와 문맥이 비슷한 단어는 부분단어들의 벡터에 의하여 서로 비슷한 벡터로 표현된다.
@@ -393,79 +393,78 @@ FastText 는 학습데이터에 등장하지 않은 단어에 대하여 형태�
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \section{순차적 레이블링 (Sequential labeling)}
 
-순차적 레이블링 기법은 길이가 $n$ 인 입력 시퀀스 $x = [x_1, x_2, \dots, x_n]$ 에 대하여 가장 적절한 출력 시퀀스 $y = [y_1, y_2, \dots, y_n]$ 을 출력하는 머신러닝 알고리즘이다 (식 \ref{eq:sequential_labeling}).
+순차적 레이블링 기법은 길이가 $n$ 인 입력 시퀀스 $x_{1:n}$ 에 대하여 가장 적절한 출력 시퀀스 $y_{1:n}$ 을 출력하는 머신러닝 알고리즘이다 (식 \ref{eq:sequential_labeling}).
 
 \begin{equation}
   \label{eq:sequential_labeling}
-  \arg \max_y P(y \vert x)
+  \arg \max_{y_{1:n}} P(y_{1:n} \vert x_{1:n})
 \end{equation}
 
 식 \ref{eq:sequential_labeling} 를 정의하는 방법에 따라 다양한 순차적 레이블링 기법이 제안되었다.
-Hidden Markov Model (HMM) 은 Markov property 를 이용하는 방법으로, 오래전부터 이 문제를 위하여 이용되었다 \cite{krogh1994hidden}.
+Hidden Markov Model (HMM) 은 Markov property 를 이용하는 방법으로, 오래전부터 순차적 레이블링에 이용되었다 \cite{krogh1994hidden}.
 HMM 은 식 \ref{eq:hmm} 처럼 두 종류의 패러매터로 구성되어 있다.
-$P(y_i \vert y_{i-1})$ 은 전이 확률 (transition probability) 로, 현재의 출력값 $y_i$ 는 이전 시점의 출력값 $y_{i-1}$ 에 영향을 받는다.
-$P(x_i \vert y_i)$ 은 생성 확률 (emission probability) 로, 현재의 출력값 $y_i$ 가 주어졌을 때, 현재의 입력값 $x_i$ 가 발생할 확률이다.
-$P(x_i \vert y_i) \times P(y_i \vert y_{i-1})$ 은 $P(x_i, y_i \vert y_{i-1})$ 로, 이전의 출력값이 주어졌을 때 현재 입력값과 출력값의 생성 확률이다.
+$P(y_i \vert y_{i-1})$ 은 전이 확률 (transition probability) 로, 출력값 $y_i$ 는 이전 시점의 출력값 $y_{i-1}$ 에 영향을 받는다.
+$P(x_i \vert y_i)$ 은 생성 확률 (emission probability) 로, 출력값 $y_i$ 가 주어졌을 때 입력값 $x_i$ 가 발생할 확률이다.
 HMM 은 출력, 입력 시퀀스의 생성 확률을 최대화 하는 출력 시퀀스를 탐색한다.
 
 \begin{equation}
   \label{eq:hmm}
-  P(y \vert x) = \prod_{i=1}^{n} P(y_i \vert y_{i-1}) P(x_i \vert y_i)
+  P(y_{1:n} \vert x_{1:n}) = \prod_{i=1}^{n} P(y_i \vert y_{i-1}) P(x_i \vert y_i)
 \end{equation}
 
 그러나 HMM 은 다음의 이유로 자연어처리리 과업에 적합하지 않다.
 첫째는 학습 데이터에 등장하지 않은 데이터의 생성 확률이 0 으로 정의된다.
-품사 판별의 경우 단어가 입력 시퀀스로 주어지고 품사를 출력 시퀀스로 탐색해야 하지만, 학습 말뭉치에 등장하지 않은 단어는 품사 추정을 할 수 없다.
-이러한 문제를 해결하기 위하여 학습 데이터에 등장하지 않은 $x_i$ 는 규칙 기반으로 처리하는 방법들이 이용될 수 있다 \cite{brants2000tnt}.
+품사 판별의 경우 입력 시퀀스 단어열에 대한 품사열을 탐색해야 하지만, 학습 말뭉치에 등장하지 않은 단어에 대한 출력 확률이 0 으로 정의된다.
+이러한 문제를 해결하기 위하여 학습 데이터에 등장하지 않은 $x_i$ 는 규칙 기반으로 처리하는 방법들이 이용되기도 하였다 \cite{brants2000tnt}.
 
-둘째는 "unguaranteed independence problem" 이 발생한다.
-품사 추정을 위해서는 앞 뒤에 등장한 단어들을 문맥으로 이용해야 하지만, HMM 은 $x_i, y_i$ 와 $y_i, y_{i-1}$ 간의 상관성만 학습하며, 연속된 단어로 표현되는 앞 뒤의 문맥 정보를 이용하지 않는다.
+둘째로 "unguaranteed independence problem" 이 발생한다.
+품사 추정을 위해서는 앞 뒤에 등장한 단어들을 문맥으로 이용해야 한다.
+하지만 HMM 은 $x_i, y_i$ 와 $y_i, y_{i-1}$ 간의 상관성만 학습하며, 연속된 단어로 표현되는 앞 뒤의 문맥 정보는 이용하지 않는다.
 
-이러한 문제를 해결하기 위하여 Maximum Entropy Models 가 제안되었다.
-Maximum Entropy Markov Model (MEMM) 과 Conditional Random Field (CRF) 가 대표적인 모델이다 \cite{mccallum2000maximum, lafferty2001conditional}.
-이들은 입력 시퀀스를 벡터로 표현한 뒤, 소프트맥스 리그레션 을 이용하여 적합한 출력 시퀀스를 탐색한다.
-입력 시퀀스를 벡터로 표현하기 위하여 잠재 함수 (potentional function) 를 이용하는데, 이는 사용자에 의해 정의된 필터들을 이용하여 시퀀스의 한 시점을 Boolean 벡터로 표현한다.
-예를 들어 입력 시퀀스 $x=[3.2, 2.1, -0.5]$ 가 주어질 때, 아래처럼 한 개의 잠재 함수 $F_1$ 를 이용하면 $(1, 3)$ 크기의 벡터화된 입력 시퀀스 $h$ 를 얻을 수 있다.
+이러한 문제를 해결하기 위하여 Maximum Entropy Markov Model (MEMM) 과 Conditional Random Field (CRF) 가 제안되었다 \cite{mccallum2000maximum, lafferty2001conditional}.
+이들은 입력 시퀀스를 벡터로 표현한 뒤, 소프트맥스 리그레션을 이용하여 적합한 출력 시퀀스를 탐색한다.
+입력 시퀀스를 벡터로 표현하기 위하여 사용되는 잠재 함수 (potentional function) 필터룰 이용하여 시퀀스의 한 시점을 Boolean 벡터로 표현한다.
+예를 들어 입력 시퀀스 $x_{1:3}=[3.2, 2.1, -0.5]$ 가 주어질 때, 아래처럼 한 개의 잠재 함수 $F_1$ 를 이용하면 $(1, 3)$ 크기의 벡터화된 입력 시퀀스 $h_{1:3}$ 를 얻을 수 있다.
 
 \begin{itemize}
   \item $F_1 = 1$ if $x_i > 0$ else $0$
-  \item $h = [1, 1, 0]$
+  \item $h_{1:3} = [1, 1, 0]$
 \end{itemize}
 
-아래와 같이 두 개의 잠재 함수 $F_1, F_2$ 를 이용하면 $(2, 3)$ 크기의 $h$ 를 얻는다.
+아래와 같이 두 개의 잠재 함수 $F_1, F_2$ 를 이용하면 $(2, 3)$ 크기의 $h_{1:3}$ 를 얻는다.
 
 \begin{itemize}
   \item $F_1 = 1$ if $x_i > 0$ else $0$
   \item $F_2 = 1$ if $x_i > 3$ else $0$
-  \item $h = [(1, 1), (1, 0), (0, 0)]$
+  \item $h_{1:3} = [(1, 1), (1, 0), (0, 0)]$
 \end{itemize}
 
 잠재 함수는 명목 변수열 입력시퀀스도 벡터로 변환할 수 있다.
-입력 시퀀스가 '[이것, 은, 예문, 이다]' 와 같은 단어열 일 때, 아래의 잠재 함수를 이용하면 $(3, 4)$ 크기의 $h$ 를 얻을 수 있다.
+입력 시퀀스가 '[이것, 은, 예문, 이다]' 와 같은 단어열 일 때, 아래의 잠재 함수를 이용하면 $(3, 4)$ 크기의 $h_{1:3}$ 를 얻을 수 있다.
 
 \begin{itemize}
   \item $F_1 = 1$ if $x_{i_1} =$ 이것 and $x_{i} =$ 은 else $0$
   \item $F_2 = 1$ if $x_{i_1} =$ 이것 and $x_{i} =$ 예문 else $0$
   \item $F_3 = 1$ if $x_{i_1} =$ 은 and $x_{i} =$ 예문 else $0$
-  \item $h = [(0, 0, 0), (1, 0, 0), (0, 0, 1), (0, 0, 0)]$
+  \item $h_{1:3} = [(0, 0, 0), (1, 0, 0), (0, 0, 1), (0, 0, 0)]$
 \end{itemize}
 
 잠재 함수의 가장 큰 장점은 모델링에 이용할 수 있는 변수를 사용자가 임의로 정의할 수 있다는 점과 입력 시퀀스가 벡터로 변환되어도 해석이 가능하다는 점이다.
-식 \ref{eq:memm} 처럼 잠재 함수가 이전 출력값 $y_{i-1}$ 을 이용할경우 Markov property 를 지니며, 품사 판별 문제에서는 앞 뒤의 단어와 이전 단어의 품사 정보를 함께 이용함을 의미한다.
-MEMM 은 잠재 함수를 이용하여 입력 시퀀스를 벡터로 변환한 뒤, 앞부분부터 순차적으로 소프트맥스 리그레션 을 이용하여 출력값을 탐색한다 \cite{mccallum2000maximum}.
+식 \ref{eq:memm} 처럼 잠재 함수가 이전 출력값 $y_{i-1}$ 을 이용할 경우 Markov property 를 지닌다.
+잠재 함수는 주변 입력값에 대한 정보를 벡터로 변환할 수 있기 때문에 앞 뒤 단어의 문맥을 이용하는 품사 판별 문제에 이용되었다.
+MEMM 은 잠재 함수를 이용하여 입력 시퀀스를 벡터로 변환한 뒤, 앞부분부터 순차적으로 소프트맥스 리그레션을 이용하여 출력값을 탐색한다 \cite{mccallum2000maximum}.
 
 \begin{equation}
   \label{eq:memm}
-  P(y \vert x) = \prod_{i=1}^{n} \frac{exp(\sum_{j=1}^{m} \lambda_j f_j (x, i, y_i, y_{i-1}))}{ \sum_{y^{`}} exp(\sum_{j^{`}=1}^{m} \lambda_j f_j (x, i, y_i^{`}, y_{i-1}^{`})) }
+  P(y_{1:n} \vert x_{1:n}) = \prod_{i=1}^{n} \frac{exp(\sum_{j=1}^{m} \lambda_j f_j (x, i, y_i, y_{i-1}))}{ \sum_{y^{`}} exp(\sum_{j^{`}=1}^{m} \lambda_j f_j (x, i, y_i^{`}, y_{i-1}^{`})) }
 \end{equation}
 
 그러나 MEMM 은 두 가지 문제점을 지니고 있다.
 첫째는 레이블에 대한 편향성으로 (label bias), 입력 시퀀스의 매 순간마다 소프트맥스 리그레션에 의한 지역적 정규화 (local normalization) 가 이뤄지면 자주 등장하지 않은 레이블 $y_{i-1}$ 이 선호되는 현상이 발생한다\cite{lafferty2001conditional, kudo2004applying, andor2016globally}.
-출력값의 종류가 다양할 경우 자주 등장하는 출력값 $y_{i-1}$ 다음에 $y_i$ 가 등장할 확률은 대부분 작은 값을 지닌다.
-하지만 몇 번 등장하지 않더나 특정 레이블 앞에만 등장하는 $y_{i-1}$ 다음의 $y_i$ 는 큰 확률 값을 지녀 확률 모델에 왜곡 현상이 발생한다.
+출력값의 종류가 다양할 경우 자주 등장하는 출력값 $y_{i-1}$ 다음에 $y_i$ 가 등장할 확률은 대부분 작은 값을 지니지만 $y_i$ 의 종류가 다양하지 않은 경우에는 대부분 큰 값의 확률을 지니기 때문에 확률에 왜곡이 발생한다.
 
 두번째는 길이에 대한 편향성으로 (length bias), 시퀀스 분할 (sequence segmentation) 과 레이블링 문제를 동시에 풀어야 하는 상황에서 길이가 짧은 출력 시퀀스를 선호하는 현상이 발생한다.
-시퀀스 분할 문제는 $P(y_{1:m} \vert x_{1:n}), m \le n$ 이 최대인 $y_{1:m}$ 을 탐색하는 문제로, 입력 글자열을 구분하여 단어열로 만드는 문제가 이에 해당한다.
+시퀀스 분할 문제는 $P(y_{1:m} \vert x_{1:n}), m \le n$ 이 최대인 $y_{1:m}$ 을 탐색하는 문제로, 입력 글자열을 구분하여 단어열로 만드는 문장 분할 문제가 이에 해당한다.
 한국어나 일본어는 글자열 $c_{1:n}$ 이 주어졌을 때 이를 단어열 $x_{1:m}$ 로 구분하고, 구분된 단어열에 품사열 $y_{1:m}$ 을 부여해야 한다 (식 \ref{eq:seg_and_label}).
 
 \begin{equation}
@@ -475,39 +474,39 @@ MEMM 은 잠재 함수를 이용하여 입력 시퀀스를 벡터로 변환한 �
 
 이를 위해 MEMM 을 이용하면 $m$ 이 작을수록 적은 수의 확률 곱셈이 이뤄지므로, 길이가 긴 단어를 선호하는 (길이가 짧은 출력 시퀀스를 선호하는) 현상이 발생한다 \cite{kudo2004applying}.
 
-CRF 는 지역적 정규화에 의한 두 종류의 문제를 해결하기 위하여 식 \ref{eq:crf} 처럼 입력 시퀀스의 $h$ 에 대해 전역적 정규화 (global normalization) 를 통하여 출력 시퀀스 $y$ 를 탐색한다 \cite{lafferty2001conditional}.
+CRF 는 지역적 정규화에 의한 두 종류의 문제를 해결하기 위하여 식 \ref{eq:crf} 처럼 전역적 정규화 (global normalization) 를 통하여 출력 시퀀스 $y_{1:n}$ 를 탐색한다 \cite{lafferty2001conditional}.
 
 \begin{equation}
   \label{eq:crf}
-  P(y \vert x) = \frac{exp(\sum_{j=1}^{m} \sum_{i=1}^{n} \lambda_j f_j (x, i, y_i, y_{i-1}))}{ \sum_{y^{`}} exp(\sum_{j^{`}=1}^{m} \sum_{i=1}^{n} \lambda_j f_j (x, i, y_i^{`}, y_{i-1}^{`})) }
+  P(y_{1:n} \vert x_{1:n}) = \frac{exp(\sum_{j=1}^{m} \sum_{i=1}^{n} \lambda_j f_j (x, i, y_i, y_{i-1}))}{ \sum_{y^{`}} exp(\sum_{j^{`}=1}^{m} \sum_{i=1}^{n} \lambda_j f_j (x, i, y_i^{`}, y_{i-1}^{`})) }
 \end{equation}
 
 CRF 는 이후 상호 참조 (Co-reference resolution) \cite{mccallum2005conditional}, 객체명 인식 (Named Entity Recognition)  \cite{ritter2011named, minkov2005extracting, ling2012fine, sang2003introduction, sarawagi2005semi}, 의존 구문 파싱(parsing) \cite{sha2003shallow, finkel2008efficient}, 품사 판별 \cite{toutanova2003feature, gimpel2010part} 등 자연어처리의 다양한 순차적 레이블링 문제에 이용되었다 \cite{choi2005identifying, mccallum2003early}. \\
 
 식 \ref{eq:crf} 에 로그를 취하면 식 \ref{eq:log_crf} 처럼 기술할 수 있다.
-잠재 함수를 통하여 학습 데이터의 입력, 출력 시퀀스 쌍 $(x, y)$ 가 벡터로 변환된 뒤, 각 변수의 계수 $\lambda$ 와의 내적은 학습 데이터의 입력, 출력 시퀀스 쌍의 점수이며, $(x, \hat{y})$ 은 입력 시퀀스 $x$ 로부터 발생할 수 있는 모든 출력 시퀀스 $\hat{y}$ 이다.
-CRF 는 학습 데이터의 시퀀스 쌍 $(x, y)$ 의 점수와 가능한 모든 후보 $(x, \hat{y})$ 의 스캐일링 된 점수의 합의 차이가 최대화 되도록 계수 $\lambda$ 를 학습한다.
+$F(x_{1:n},y_{1:n})$ 는 입력과 출력 시퀀스에 대한 벡터 표현이며, $\lambda$ 는 각 변수의 계수이다.
+$x_{1:n}$ 에 대한 $y_{1:n}$ 의 점수는 $F$ 에 의하여 생성된 변수의 계수 합이며, 모델은 학습데이터에 존재하는 $y_{1:n}$ 와 가능한 모든 출력 시퀀스의 점수 합과의 차이가 최대가 되도록 $\lambda$ 를 학습한다.
 
 \begin{equation}
   \label{eq:log_crf}
-  \log P(y \vert x) = \lambda \cdot F(x, y) - \log \sum_{\hat{y}} \exp F(x, \hat{y})
+  \log P(y_{1:n} \vert x_{1:n}) = \lambda \cdot F(x_{1:n}, y_{1:n}) - \log \sum_{\hat{y_{1:n}}} \exp F(x_{1:n}, \hat{y_{1:n}})
 \end{equation}
 
-CRF 와 다르게 학습 데이터의 시퀀스 쌍 $(x, y)$ 의 점수와 최대 점수를 지니는 출력 시퀀스와의 점수 차이가 최대화 되도록 계수 $\lambda$ 를 학습할 수도 있다 (식 \ref{eq:max_margine_tagger}).
-잠재 함수를 이용하여 $x$ 를 $h$ 로 변환한 뒤, $(x, y)$ 의 판별식에 Support Vector Machine (SVM) \cite{Cortes1995} 을 이용할 수 있다 \cite{tsochantaridis2005large}.
-이는 SVM 처럼 마진을 최대화 하는 판별기가 되며, 식 \ref{eq:max_margine_tagger} 처럼 기술할 수 있다 \cite{taskar2004max}.
-모델은 주어진 $\lambda$ 를 이용하여 추정된 출력 시퀀스 $\hat{y}$ 이 학습 데이터의 출력 시퀀스 $y$ 가 되는 방향으로만 학습한다.
+정답 시퀀스와 예측 시퀀스와의 점수 차이가 최대화 되도록 계수 $\lambda$ 를 학습할 수도 있다 (식 \ref{eq:max_margine_tagger}).
+이는 Support Vector Machine 처럼 마진을 최대화 하는 판별기가 되며, 이를 Structural Support Vector Machine 이라 한다 \cite{taskar2004max, tsochantaridis2005large}.
+식 \ref{eq:max_margine_tagger} 은 출력 시퀀스가 정답 시퀀스가 되면 더이상 학습되지 않지만, 식 \label{eq:crf} 은 정답 시퀀스와 그 외의 모든 시퀀스와의 점수 차이가 커지는 방향으로 지속적으로 학습이 일어난다.
+그 결과 \ref{eq:max_margine_tagger} 은 과적합의 가능성이 적으며 안정적인 $\lambda$ 가 학습된다.
 
 \begin{equation}
   \label{eq:max_margine_tagger}
-  \lambda \cdot \left( F(x, y) - F(x, \hat{y}) \right)
+  \lambda \cdot \left( F(x_{1:n}, y_{1:n}) - F(x_{1:n}, \hat{y_{1:n}}) \right)
 \end{equation}
 
 잠재 함수에 의하여 생성되는 변수가 Markov property 를 따른다면 식 \ref{eq:log_crf} 처럼 $F(x, y_{i-1}, y_{i}, i)$ 로 기술할 수 있으며, 출력 시퀀스 값의 전이 성질을 이용하는 이러한 모델을 전이 기반 순차적 레이블링 (transition based sequence labeling) 이라 한다 \cite{bohnet2012transition}.
 
 \begin{equation}
   \label{eq:transition_based_tagger_i}
-  \lambda \cdot \left( \sum_i F(x, y_{i-1}, y_i, i) - F(x, \hat{y_{i-1}}, \hat{y_i}, i) \right)
+  \lambda \cdot \left( \sum_i F(x_{1:n}, y_{i-1}, y_i, i) - F(x_{1:n}, \hat{y_{i-1}}, \hat{y_i}, i) \right)
 \end{equation}
 
 이들은 Markov property 를 따르지만 지역적 정규화를 하지 않기 때문에 레이블이나 길이에 대한 편향성의 위험이 상대적으로 적다.
@@ -515,7 +514,7 @@ CRF 와 다르게 학습 데이터의 시퀀스 쌍 $(x, y)$ 의 점수와 최�
 잠재 함수를 이용하여 입력 시퀀스를 벡터로 변환할 경우, 그 형태는 sparse Boolean 벡터이다.
 Long-Short Term Memory network (LSTM) 이나 Gated Recurreunt Unit (GRU) 와 같은 Recurrent Neural Network (RNN) 계열 신경망 모델은 워드 임베딩 시퀀스 형태의 입력값을 이용할 수 있다 \cite{cho2014learning, hochreiter1997long}.
 LSTM 과 GRU 는 게이트 메커니즘 (gating mechanism) 을 이용하여 입력 시퀀스 $x = [x_1, x_2, \dots, x_n]$ 의 정보를 히든 벡터 시퀀스 $h = [h_1, h_2, \dots, h_n]$ 에 누적한다.
-GRU 는 식 \ref{eq:gru} 처럼 업데이트 게이트 $z_i$, 리셋 게이트 $r_i$ 를 이용하여 새로운 메모리 컨텐츠 $\tilde{h_i}$ 를 만들어 히든 벡터 $h_i$ 를 업데이트 한다.
+GRU 는 식 \ref{eq:gru} 처럼 매 시점 $i$ 마다 업데이트 게이트 $z_i$, 리셋 게이트 $r_i$ 를 이용하여 새로운 메모리 컨텐츠 $\tilde{h_i}$ 를 만들어 히든 벡터 $h_i$ 를 업데이트 한다.
 출력값은 히든 벡터 $h_i$ 에 선형 판별식을 통하여 선택된다.
 
 \begin{equation}
@@ -529,7 +528,7 @@ GRU 는 식 \ref{eq:gru} 처럼 업데이트 게이트 $z_i$, 리셋 게이트 $
   \end{aligned}
 \end{equation}
 
-본래GRU 는 LSTM 의 구조를 간소화 한 것으로, LSTM 은 GRU 보다 1 개 많은 게이트와 메모리셀 $\tilde{c_i}$이 추가로 학습된다.
+GRU 는 LSTM 의 구조를 간소화 한 것으로, LSTM 은 GRU 보다 1 개 많은 게이트와 메모리셀 $\tilde{c_i}$이 추가로 학습된다.
 게이트는 입력 게이트 $i_i$ 삭제 게이트 $f_i$, 출력 게이트 $o_i$ 로 구성되어 있다.
 
 \begin{equation}
@@ -558,7 +557,7 @@ GRU 는 식 \ref{eq:gru} 처럼 업데이트 게이트 $z_i$, 리셋 게이트 $
   S(x_{1:n}, y_{1:n}) = \sum_{i=1}^n f_\theta(x_i, y_i)
 \end{equation}
 
-식 \ref{eq:rnn_crf_score} 처럼 이전 출력값과의 관계를 함께 학습하기 위하여 LSTM-CRF 모델이 제안되었으며, 객체명 인식같은 과업에 이용되었다 \cite{lample2016neural}.
+식 \ref{eq:rnn_crf_score} 처럼 이전 출력값과의 관계를 함께 학습하기 위하여 LSTM-CRF 모델이 제안되었으며, 객체명 인식과 품사 판별 과업에 이용되었다 \cite{ma2016end, santos2014learning, lample2016neural}.
 $A(y_{i-1}, y_i)$ 는 전이 모델의 역할을 한다.
 
 \begin{equation}
@@ -568,7 +567,6 @@ $A(y_{i-1}, y_i)$ 는 전이 모델의 역할을 한다.
 
 입력 시퀀스가 단어열이 아닌 글자열일 경우에도 객체명 인식과 같은 작업이 가능하다 \cite{gridach2017character}.
 입력 단어가 학습 데이터에 존재하지 않아 임베딩 벡터를 계산하지 못하는 경우를 방지하기 위하여 Convoluational Neural Network (CNN) 필터를 이용하여 단어의 글자로부터 임베딩 벡터를 학습하여 입력 시퀀스로 입력하는 LSTM + CNN 모델도 제안되었다 \cite{chiu2016named}.
-이들은 품사 판별이나 객체명 인식 과업에 이용되었다 \cite{ma2016end, santos2014learning}
 
 뉴럴 네트워크를 이용하는 전이 기반 순차적 레이블링 방법도 제안되었다 \cite{zheng2013deep, collobert2011natural, alberti2015improved}.
 전이 기반 모델은 피드 포워드 네트워크를 이용하여 점수 함수를 구축할 수 있으며, 입력 시퀀스로부터 정보를 추출하기 위하여 CNN 필터도 함께 이용될 수 있다 \cite{collobert2011natural}.

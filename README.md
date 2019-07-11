@@ -1,5 +1,7 @@
 # Ph.D  dissertation Repository
 
+[pdf](dissertation.pdf)
+
 ## 미등록단어 문제와 데이터 부족 현상을 해결하기 위한 비지도학습 토크나이저와 추출 기반 문서 요약 기법
 
 ### 제 1 장 서론
